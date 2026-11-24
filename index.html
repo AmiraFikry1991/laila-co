@@ -124,6 +124,9 @@ main{max-width:1240px;margin:0 auto;padding:20px}
 .kv{display:grid;grid-template-columns:130px 1fr;gap:4px 10px;font-size:13px}
 .kv dt{color:var(--muted)}
 .kv dd{margin:0}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+.cust-box{background:#fff;border-color:var(--line)}
+.step.cust{background:linear-gradient(135deg,#FFFFFF,#FBF4FD)}
 .conf{height:6px;background:#EEF1F4;border-radius:4px;overflow:hidden;margin-top:6px;max-width:180px}
 .conf i{display:block;height:100%;background:var(--teal)}
 .qa-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -280,6 +283,7 @@ footer{max-width:1240px;margin:0 auto;padding:8px 20px 28px;color:var(--muted);f
             <li>The AI answers from Nakhla Home's knowledge base and can look up orders (try order 4521, 4522, 4530 or 4588).</li>
             <li>Damaged items, big refunds, angry customers or a request for a person go straight to a human in the Agent inbox.</li>
             <li>Every conversation is pre-scored for quality and counted in QA and reports.</li>
+            <li>Agents see who they are talking to: location, local time and device, detected from the connection.</li>
           </ol>
         </div>
         <div class="card" style="margin-top:14px">
@@ -547,6 +551,53 @@ let unlockedBefore = false;
 try { unlockedBefore = sessionStorage.getItem("laila-unlocked") === "1"; } catch(e){}
 if (unlockedBefore) unlock(); else setTimeout(() => $("#gateInput").focus(), 50);
 
+
+/* ---------- Customer details ---------- */
+let visitorMeta = null, metaPromise = null;
+function getVisitorMeta(){
+  if (visitorMeta) return Promise.resolve(visitorMeta);
+  if (metaPromise) return metaPromise;
+  metaPromise = (async () => {
+    const ua = navigator.userAgent || "";
+    const device = /iPad/.test(ua) ? "iPad" : /iPhone/.test(ua) ? "iPhone" : /Android/.test(ua) ? (/Mobile/.test(ua) ? "Android phone" : "Android tablet") : /Mac OS X/.test(ua) ? "Mac" : /Windows/.test(ua) ? "Windows PC" : /Linux/.test(ua) ? "Linux computer" : "Computer";
+    const browser = /Edg\//.test(ua) ? "Edge" : /OPR\//.test(ua) ? "Opera" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : "Browser";
+    let tz = ""; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch(e){}
+    const m = { device, browser, tz, tzCity: tz ? tz.split("/").pop().replace(/_/g, " ") : "", lang: navigator.language || "", ip:null, city:null, region:null, country:null, cc:null, source:"timezone" };
+    const tryJson = async (url, pick) => {
+      try {
+        const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 3500);
+        const r = await fetch(url, { signal: ctl.signal }); clearTimeout(tm);
+        if (!r.ok) return false;
+        const j = await r.json(); const p = pick(j); if (!p || !p.ip) return false;
+        Object.assign(m, p, { source:"ip" }); return true;
+      } catch(e){ return false; }
+    };
+    (await tryJson("https://ipapi.co/json/", j => j && !j.error && { ip:j.ip, city:j.city, region:j.region, country:j.country_name, cc:j.country_code })) ||
+    (await tryJson("https://ipwho.is/", j => j && j.success !== false && { ip:j.ip, city:j.city, region:j.region, country:j.country, cc:j.country_code }));
+    visitorMeta = m; return m;
+  })();
+  return metaPromise;
+}
+function maskIP(ip){
+  if (!ip) return "";
+  if (ip.includes(".")){ const p = ip.split("."); return p[0] + "." + p[1] + ".•••.•••"; }
+  const p = ip.split(":"); return p.slice(0, 2).join(":") + ":••••";
+}
+function flag(cc){ if (!cc || cc.length !== 2) return ""; return String.fromCodePoint(...cc.toUpperCase().split("").map(ch => 127397 + ch.charCodeAt(0))); }
+function localTime(tz){ try { return new Date().toLocaleTimeString([], { hour:"2-digit", minute:"2-digit", timeZone:tz }); } catch(e){ return ""; } }
+function metaHTML(m, compact){
+  if (!m) return `<div class="small muted">Detecting customer details...</div>`;
+  const loc = m.source === "ip" ? [m.city, m.region && m.region !== m.city ? m.region : "", m.country].filter(Boolean).join(", ") : (m.tzCity ? "Near " + m.tzCity + " (from time zone)" : "Unknown");
+  const rows = [
+    ["Location", (m.source === "ip" ? flag(m.cc) + " " : "") + esc(loc)],
+    ["Local time", esc(localTime(m.tz)) + (m.tz ? ` <span class="muted">(${esc(m.tz)})</span>` : "")],
+    ["IP address", m.ip ? `<span class="mono">${esc(maskIP(m.ip))}</span> <span class="muted">partly hidden</span>` : `<span class="muted">Not available in this view</span>`],
+    ["Device", esc(m.device + " · " + m.browser)],
+    ["Language", esc(m.lang)]
+  ];
+  return `<dl class="kv">${rows.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("")}</dl>`;
+}
+
 /* ---------- Conversations ---------- */
 function current(){ return state.convs.find(c => c.id === state.currentId); }
 function newConversation(){
@@ -693,6 +744,7 @@ async function sendCustomer(text){
   text = text.trim(); if (!text || busy) return;
   let c = current(); if (!c) c = newConversation();
   c.channel = $("#channel").value;
+  if (!c.meta){ c.meta = visitorMeta || null; if (!c.meta) getVisitorMeta().then(m => { c.meta = m; save(); renderTrace(); renderInbox(); }); }
   addMsg(c, "customer", text);
   renderChat();
   if (c.status === "escalated"){
@@ -769,7 +821,7 @@ function renderTrace(){
   const c = current(); const el = $("#trace");
   if (!c || !c.turns.length){ el.innerHTML = `<div class="trace-empty">Send a message to see how the AI reads it and decides what to do.</div>`; $("#traceCount").textContent = ""; return; }
   $("#traceCount").textContent = c.turns.length + (c.turns.length === 1 ? " message analysed" : " messages analysed");
-  el.innerHTML = c.turns.slice().reverse().map(tu => {
+  el.innerHTML = `<div class="step cust"><div class="step-h"><b>Customer: ${esc(c.customer)}</b><span class="tag info">${esc(c.channel || "Web chat")}</span></div>${metaHTML(c.meta)}</div>` + c.turns.slice().reverse().map(tu => {
     const r = tu.r;
     const decision = r.escalate ? `<span class="tag esc">Escalated to a human</span>` : `<span class="tag ok">Answered by AI</span>`;
     const toolsTxt = r.tools && r.tools.length ? r.tools.map(x => `Order lookup ${esc(x.input)}: ${x.found ? "found" : "not found"}`).join("; ") : "None needed";
@@ -825,6 +877,7 @@ function renderInbox(){
       <div class="small" style="margin-top:4px">${esc(c.escalation.summary || "No summary.")}</div>
       <div class="small muted" style="margin-top:4px">Intents: ${c.intents.map(i => esc(INTENT_LABEL[i] || i)).join(", ")} · Escalated at ${hhmm(c.escalation.at)}</div>
     </div>
+    <div class="handoff cust-box"><h4>Customer details</h4>${metaHTML(c.meta)}</div>
     <div class="transcript">${c.messages.map(bubble).join("")}</div>
     ${c.status === "escalated" ? `<div class="reply-box">
       <label class="f" for="agentReply">Reply as Sara (Laila &amp; Co. agent). The AI suggested this; edit it as you like.</label>
@@ -1254,7 +1307,7 @@ function boot(){
   if (booted) return; booted = true;
   if (!state.setup) state.setup = defaultSetup();
   renderChips(); renderChat(); renderTrace(); renderInboxBadge(); renderInbox(); renderReports(); renderSetup(); renderMode(); renderQA(); bindQA();
-  initAI();
+  initAI(); getVisitorMeta().then(() => { const c = current(); if (c && !c.meta && c.messages.length){ c.meta = visitorMeta; save(); } renderTrace(); renderInbox(); });
   $$("nav button").forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
   const h = (location.hash || "").replace("#", "");
   if (["chat","inbox","qa","reports","setup"].includes(h)) show(h);
