@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<meta name="description" content="Laila & Co.: AI that answers, people who care. Live support console demo.">
+<title>Laila &amp; Co. Console: Live Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#2A0B3A; --navy-2:#4A1766; --teal:#C2337F; --teal-2:#9C2266; --sea:#FCEAF4; --sand:#F5ECFA;
+  --coral:#FF8FCB; --amber:#C98A1B; --green:#2E8B57; --red:#C2453A; --orchid:#8E44C9; --gold:#FFD27A;
+  --ink:#2A1833; --muted:#6E5A78; --line:#EADFF0; --card:#FFFFFF; --bg:#FAF5FB;
+  --radius:16px; --shadow:0 1px 2px rgba(74,23,102,.06),0 6px 20px rgba(74,23,102,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);font-size:14px;line-height:1.45}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+
+/* Gate */
+#gate{position:fixed;inset:0;background:radial-gradient(circle at 80% 10%,rgba(255,143,203,.35),transparent 45%),linear-gradient(150deg,#1E0730 0%,#4A1766 50%,#9C2266 100%);display:flex;align-items:center;justify-content:center;z-index:50;padding:24px}
+.gate-card{background:#fff;border-radius:18px;padding:32px 28px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
+.gate-card h1{font-size:18px;margin:18px 0 6px;color:var(--navy)}
+.gate-card p{color:var(--muted);margin:0 0 20px}
+.gate-card input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:15px;text-align:center;letter-spacing:.05em}
+.gate-card input:focus{outline:2px solid var(--teal);border-color:transparent}
+.gate-err{color:var(--red);font-size:13px;min-height:18px;margin:8px 0 4px}
+
+/* Brand mark */
+.mark{display:inline-flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.01em}
+.mark svg{flex:none}
+.wordmark{font-family:"Plus Jakarta Sans","IBM Plex Sans",sans-serif;font-weight:800;letter-spacing:-.03em}
+.wordmark .amp{font-weight:500;color:#D9BCE8}
+.gate-logo .wordmark .amp{color:#8A6F98}
+.gate-logo{display:flex;flex-direction:column;align-items:center;gap:10px}
+.gate-logo .wordmark{font-size:36px;color:#1E0B2B}
+.tagline{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);font-weight:600}
+
+/* Header */
+header{background:linear-gradient(90deg,#24092F 0%,#3E1356 60%,#5A1A63 100%);color:#fff;position:sticky;top:0;z-index:10}
+.hwrap{max-width:1240px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.hwrap .mark{font-size:18px}
+.client-pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px 12px;font-size:12.5px;color:#D7E6F0}
+.mode-pill{margin-left:auto;font-size:12.5px;border-radius:999px;padding:4px 12px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);color:#D7E6F0}
+.dot{width:8px;height:8px;border-radius:50%;background:#9AA8B5}
+.dot.live{background:#3DD68C;box-shadow:0 0 0 3px rgba(61,214,140,.2)}
+.dot.off{background:var(--amber)}
+nav{max-width:1240px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow-x:auto}
+nav button{background:none;border:0;color:#B9C9D8;padding:10px 14px;border-bottom:3px solid transparent;font-weight:500;white-space:nowrap;display:flex;align-items:center;gap:8px}
+nav button.active{color:#fff;border-bottom-color:var(--coral)}
+nav button:hover{color:#fff}
+.badge{background:var(--coral);color:#fff;border-radius:999px;font-size:11px;padding:1px 7px;font-weight:600}
+
+main{max-width:1240px;margin:0 auto;padding:20px}
+.view{display:none}
+.view.active{display:block}
+.intro{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.intro h2{margin:0;font-size:20px;color:var(--navy)}
+.intro p{margin:4px 0 0;color:var(--muted);max-width:720px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card h3{margin:0;font-size:14px;color:var(--navy)}
+.card-h{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-b{padding:14px 16px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-weight:500}
+.btn:hover{border-color:#B8C4CE}
+.btn.primary{background:linear-gradient(135deg,#C2337F,#8E44C9);border-color:transparent;color:#fff}
+.btn.primary:hover{background:var(--teal-2)}
+.btn.coral{background:var(--coral);border-color:var(--coral);color:#fff}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* Chat view */
+.chat-grid{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:20px;align-items:start}
+.phone{background:#fff;border-radius:26px;border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;height:640px}
+.phone-top{background:var(--sand);padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.store-logo{width:36px;height:36px;border-radius:10px;background:#3A3A48;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.store-meta{flex:1;min-width:0}
+.store-meta b{display:block;font-size:14px}
+.store-meta span{font-size:12px;color:var(--muted)}
+.chan{font-size:12px;border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:#fff}
+.msgs{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:10px;background:#FBFCFD}
+.msg{max-width:84%;padding:9px 12px;border-radius:14px;white-space:pre-wrap;word-wrap:break-word;font-size:14px}
+.msg .who{display:block;font-size:11px;font-weight:600;margin-bottom:2px;opacity:.75}
+.msg .t{display:block;font-size:10.5px;opacity:.6;margin-top:3px}
+.msg.customer{align-self:flex-end;background:linear-gradient(135deg,#C2337F,#8E44C9);color:#fff;border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.agent{align-self:flex-start;background:var(--sand);border:1px solid #E6D3EF;border-bottom-left-radius:4px}
+.msg.system{align-self:center;background:transparent;color:var(--muted);font-size:12px;text-align:center;padding:2px 8px}
+.msg[dir="rtl"]{font-family:"IBM Plex Sans Arabic","IBM Plex Sans",system-ui,sans-serif}
+.typing{align-self:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:#9AA8B5;animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;border-top:1px solid var(--line);background:#fff}
+.chip{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;white-space:nowrap}
+.chip:hover{border-color:var(--teal);color:var(--teal)}
+.composer{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:#fff}
+.composer input{flex:1;border:1px solid var(--line);border-radius:999px;padding:10px 14px}
+.composer input:focus{outline:2px solid var(--teal);border-color:transparent}
+.send{width:42px;height:42px;border-radius:50%;border:0;background:linear-gradient(135deg,#C2337F,#8E44C9);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.send:disabled{opacity:.5}
+.phone-foot{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-top:1px solid var(--line);background:#fff;font-size:12px}
+.rate{display:flex;gap:4px;align-items:center}
+.rate button{border:1px solid var(--line);background:#fff;border-radius:8px;width:30px;height:28px}
+.rate button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+
+.trace{display:flex;flex-direction:column;gap:12px}
+.trace-empty{padding:28px 16px;text-align:center;color:var(--muted)}
+.step{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff}
+.step-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.step-h b{font-size:13px}
+.tag{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600}
+.tag.ok{background:#E3F4EA;color:#1F6B42}
+.tag.esc{background:#FCE9E4;color:#A2402C}
+.tag.info{background:#F3E8FB;color:#6B2B9A}
+.tag.warn{background:#FBF1DC;color:#8A5E10}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:4px 10px;font-size:13px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+.conf{height:6px;background:#EEF1F4;border-radius:4px;overflow:hidden;margin-top:6px;max-width:180px}
+.conf i{display:block;height:100%;background:var(--teal)}
+.qa-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.qa-row span{background:#F3F5F7;border-radius:8px;padding:3px 8px;font-size:12px}
+.explain{background:linear-gradient(135deg,#FCEAF4,#F3E8FB);border:1px solid #F1D3E6;border-radius:12px;padding:12px 14px;font-size:13px;color:var(--navy)}
+.explain ol{margin:6px 0 0;padding-left:18px}
+
+/* Inbox */
+.inbox-grid{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+.qlist{display:flex;flex-direction:column}
+.qitem{text-align:left;background:#fff;border:0;border-bottom:1px solid var(--line);padding:12px 16px;display:block;width:100%}
+.qitem:last-child{border-bottom:0}
+.qitem.sel{background:var(--sea)}
+.qitem b{display:flex;justify-content:space-between;font-size:13.5px}
+.qitem .snip{display:block;color:var(--muted);font-size:12.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.handoff{background:var(--sand);border:1px solid #E6D3EF;border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.handoff h4{margin:0 0 6px;font-size:13px;color:var(--navy)}
+.transcript{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;padding:4px 2px;margin-bottom:14px}
+.reply-box textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical}
+.reply-box textarea:focus{outline:2px solid var(--teal);border-color:transparent}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1}
+
+/* Reports */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+.kpi span{display:block;font-size:12px;color:var(--muted)}
+.kpi b{display:block;font-size:24px;color:var(--navy);margin-top:4px}
+.kpi small{color:var(--muted);font-size:11.5px}
+.rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:150px 1fr 44px;gap:10px;align-items:center;font-size:13px}
+.bar .track{height:10px;background:#EEF1F4;border-radius:6px;overflow:hidden}
+.bar .fill{height:100%;background:linear-gradient(90deg,#C2337F,#8E44C9);border-radius:6px}
+.bar .fill.c2{background:var(--coral)}
+.bar .fill.c3{background:#4A1766}
+.bar em{font-style:normal;text-align:right;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line);background:#FAFBFC}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;user-select:none}
+.switch input{display:none}
+.switch .sw{width:36px;height:20px;border-radius:999px;background:#C9D2DA;position:relative;transition:.2s}
+.switch .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.switch input:checked + .sw{background:var(--teal)}
+.switch input:checked + .sw::after{left:18px}
+.sample-note{background:#FBF1DC;border:1px solid #F0DDB0;color:#6E4C0E;border-radius:10px;padding:8px 12px;font-size:12.5px;margin-bottom:14px}
+
+/* Setup */
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label.f{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px;font-weight:500}
+.inp,textarea.inp,select.inp{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff}
+textarea.inp{min-height:300px;resize:vertical;font-size:13px;line-height:1.5}
+.inp:focus{outline:2px solid var(--teal);border-color:transparent}
+.rules{display:flex;flex-direction:column;gap:6px}
+.rule{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px}
+.rule input{margin-top:3px}
+.rule .x{margin-left:auto;border:0;background:none;color:var(--muted)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+footer{max-width:1240px;margin:0 auto;padding:8px 20px 28px;color:var(--muted);font-size:12px}
+
+.qa-grid{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+#qaList{max-height:720px;overflow-y:auto}
+.qa-sum{display:grid;grid-template-columns:1fr 1fr;gap:12px;background:linear-gradient(135deg,#FCEAF4,#F3E8FB);border:1px solid #F1D3E6;border-radius:12px;padding:12px 14px;font-size:13px}
+.qa-tr summary{cursor:pointer;color:var(--teal);font-weight:600;font-size:13px;margin-top:12px}
+.qa-table td{font-size:13px}
+.qa-ov.changed{border-color:var(--teal);background:#FCEAF4;font-weight:600}
+@media (max-width:980px){
+  .qa-grid,.qa-sum{grid-template-columns:1fr}
+  .chat-grid,.inbox-grid,.rep-grid,.setup-grid{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .phone{height:560px}
+  .bar{grid-template-columns:110px 1fr 40px}
+}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <form class="gate-card" id="gateForm" autocomplete="off">
+    <div class="gate-logo"><svg width="76" height="76" viewBox="0 -2 66 66" aria-hidden="true"><defs>
+  <linearGradient id="ga" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E0379B"/><stop offset="1" stop-color="#7B2FD0"/></linearGradient>
+  <mask id="gam"><rect x="-10" y="-10" width="90" height="90" fill="#fff"/><circle cx="54" cy="10" r="11" fill="#000"/></mask>
+ </defs>
+ <path mask="url(#gam)" d="M6 16a10 10 0 0 1 10-10h32a10 10 0 0 1 10 10v24a10 10 0 0 1-10 10H27l-13 11a1.5 1.5 0 0 1-2.5-1.2V50A6 6 0 0 1 6 44z" fill="url(#ga)"/>
+ <path d="M23 17v15.5a3.5 3.5 0 0 0 3.5 3.5H40" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+ <circle cx="54" cy="10" r="7" fill="#2BD47D"/></svg><span class="wordmark">laila <span class="amp">&amp; co</span></span><span class="tagline">AI that answers. People who care.</span></div>
+    <h1>Live demo access</h1>
+    <p>Enter the access code you were given to try the Laila &amp; Co. support console.</p>
+    <input id="gateInput" type="password" placeholder="Access code" aria-label="Access code">
+    <div class="gate-err" id="gateErr"></div>
+    <button class="btn primary" style="width:100%;padding:11px" type="submit">Open the demo</button>
+  </form>
+</div>
+
+<header class="hidden" id="appHeader">
+  <div class="hwrap">
+    <div class="mark"><svg width="34" height="34" viewBox="0 -2 66 66" aria-hidden="true"><defs>
+  <linearGradient id="hd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E0379B"/><stop offset="1" stop-color="#7B2FD0"/></linearGradient>
+  <mask id="hdm"><rect x="-10" y="-10" width="90" height="90" fill="#fff"/><circle cx="54" cy="10" r="11" fill="#000"/></mask>
+ </defs>
+ <path mask="url(#hdm)" d="M6 16a10 10 0 0 1 10-10h32a10 10 0 0 1 10 10v24a10 10 0 0 1-10 10H27l-13 11a1.5 1.5 0 0 1-2.5-1.2V50A6 6 0 0 1 6 44z" fill="url(#hd)"/>
+ <path d="M23 17v15.5a3.5 3.5 0 0 0 3.5 3.5H40" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+ <circle cx="54" cy="10" r="7" fill="#2BD47D"/></svg><span class="wordmark" style="font-size:22px">laila <span class="amp">&amp; co</span></span></div>
+    <span class="client-pill" id="clientPill">Client: Nakhla Home (demo store)</span>
+    <span class="mode-pill" id="modePill"><span class="dot" id="modeDot"></span><span id="modeText">Checking AI...</span></span>
+  </div>
+  <nav>
+    <button data-view="chat" class="active">Live chat</button>
+    <button data-view="inbox">Agent inbox <span class="badge hidden" id="inboxBadge">0</span></button>
+    <button data-view="qa">QA studio</button>
+    <button data-view="reports">Reports</button>
+    <button data-view="setup">Setup</button>
+  </nav>
+</header>
+
+<main class="hidden" id="appMain">
+
+  <!-- LIVE CHAT -->
+  <section class="view active" id="view-chat">
+    <div class="intro">
+      <div>
+        <h2>Talk to the AI agent as a customer would</h2>
+        <p>Write in Arabic or English, or tap a sample message. The Behind the scenes panel shows what Laila does: language, intent, order lookups, and when it hands over to a human.</p>
+      </div>
+      <div class="row">
+        <button class="btn" id="newChatBtn">New conversation</button>
+      </div>
+    </div>
+    <div class="chat-grid">
+      <div class="phone">
+        <div class="phone-top">
+          <div class="store-logo" id="storeLogo">N</div>
+          <div class="store-meta"><b id="storeName">Nakhla Home</b><span id="storeSub">Replies instantly, 24/7</span></div>
+          <select class="chan" id="channel" aria-label="Channel"><option>Web chat</option><option>WhatsApp</option></select>
+        </div>
+        <div class="msgs" id="msgs" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <form class="composer" id="composer">
+          <input id="msgInput" placeholder="Type a message... / اكتب رسالتك..." aria-label="Message" dir="auto">
+          <button class="send" id="sendBtn" type="submit" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 12l16-8-6 16-2-7-8-1z" fill="#fff"/></svg></button>
+        </form>
+        <div class="phone-foot">
+          <span class="muted" id="custLabel">Customer: Noura</span>
+          <span class="rate" id="rate"><span class="muted">Rate chat</span></span>
+        </div>
+      </div>
+      <div>
+        <div class="explain" id="explainBox">
+          <b>How this demo works</b>
+          <ol>
+            <li>The AI answers from Nakhla Home's knowledge base and can look up orders (try order 4521, 4522, 4530 or 4588).</li>
+            <li>Damaged items, big refunds, angry customers or a request for a person go straight to a human in the Agent inbox.</li>
+            <li>Every conversation is pre-scored for quality and counted in QA and reports.</li>
+          </ol>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="card-h"><h3>Behind the scenes</h3><span class="small muted" id="traceCount"></span></div>
+          <div class="card-b trace" id="trace"><div class="trace-empty">Send a message to see how the AI reads it and decides what to do.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INBOX -->
+  <section class="view" id="view-inbox">
+    <div class="intro">
+      <div>
+        <h2>Agent inbox: where the human team takes over</h2>
+        <p>Conversations the AI escalates arrive here with a summary and a suggested reply, so the agent never asks the customer to repeat themselves. Replies you send here appear in the customer's chat.</p>
+      </div>
+    </div>
+    <div class="inbox-grid">
+      <div class="card">
+        <div class="card-h"><h3>Queue</h3><span class="small muted" id="qCount"></span></div>
+        <div class="qlist" id="qlist"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3 id="convTitle">Select a conversation</h3><span id="convStatus"></span></div>
+        <div class="card-b" id="convPane"><div class="trace-empty">No escalations yet. Try telling the AI an item arrived damaged, or ask for a manager.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORTS -->
+  <section class="view" id="view-reports">
+    <div class="intro">
+      <div>
+        <h2>Reports</h2>
+        <p>What the client sees every week: how much the AI resolves, what customers ask about, and the quality of every answer.</p>
+      </div>
+      <label class="switch"><input type="checkbox" id="sampleToggle"><span class="sw"></span>Show an illustrative sample week</label>
+    </div>
+    <div id="sampleNote" class="sample-note hidden">Illustrative sample week for a store of this size. These are not real client results; switch off to see the conversations from this demo.</div>
+    <div class="kpis" id="kpis"></div>
+    <div class="rep-grid">
+      <div class="card"><div class="card-h"><h3>What customers ask about</h3></div><div class="card-b bars" id="intentBars"></div></div>
+      <div class="card"><div class="card-h"><h3>Language and outcome</h3></div><div class="card-b bars" id="langBars"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Conversation log with auto-QA</h3><span class="small muted">QA pre-score out of 5: accuracy, tone, policy, language. A human reviewer checks a sample every week.</span></div>
+      <div style="overflow-x:auto"><table id="logTable"></table></div>
+    </div>
+  </section>
+
+  <!-- QA STUDIO -->
+  <section class="view" id="view-qa">
+    <div class="intro">
+      <div>
+        <h2>QA studio: every chat and call, scored</h2>
+        <p>The AI scores each interaction against the client's scorecard and quotes its evidence. A human QA reviewer then checks the score, overrides it where needed and leaves coaching for the agent.</p>
+      </div>
+      <div class="row">
+        <button class="btn" id="qaEditCard">Edit scorecard</button>
+        <button class="btn primary" id="qaScoreAll">Score all with AI</button>
+      </div>
+    </div>
+
+    <div class="kpis" id="qaKpis"></div>
+
+    <div class="card hidden" id="qaCardEditor" style="margin-bottom:16px">
+      <div class="card-h"><h3>Scorecard</h3><span class="small muted">Weights add up to the total. Auto-fail questions set the score to 0 if failed.</span></div>
+      <div class="card-b">
+        <div style="overflow-x:auto"><table id="qaCardTable"></table></div>
+        <form class="row" id="qaAddQ" style="margin-top:12px">
+          <input class="inp" id="qaNewQ" placeholder="Add a question, for example: Offered the customer a survey at the end" style="flex:1;min-width:220px">
+          <select class="inp" id="qaNewType" style="width:auto"><option value="scale">1 to 5</option><option value="yesno">Yes / No</option></select>
+          <input class="inp" id="qaNewW" type="number" min="1" max="50" value="10" style="width:80px" aria-label="Weight">
+          <button class="btn" type="submit">Add</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="qa-grid">
+      <div class="card">
+        <div class="card-h"><h3>Interactions</h3>
+          <select class="chan" id="qaFilter" aria-label="Filter">
+            <option value="all">All</option><option value="unscored">Needs AI score</option><option value="review">Needs human review</option><option value="fail">Auto-fail</option><option value="done">Reviewed</option>
+          </select>
+        </div>
+        <div class="qlist" id="qaList"></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3 id="qaTitle">Select an interaction</h3><span id="qaBadges"></span></div>
+        <div class="card-b" id="qaPane"><div class="trace-empty">Pick a chat or call from the list to see its AI score and add your review.</div></div>
+      </div>
+    </div>
+
+    <div class="rep-grid" style="margin-top:16px">
+      <div class="card"><div class="card-h"><h3>Average score by agent</h3><span class="small muted">Final score: human review where done, AI otherwise</span></div><div class="card-b bars" id="qaAgentBars"></div></div>
+      <div class="card"><div class="card-h"><h3>Weakest questions</h3><span class="small muted">Where coaching will help most</span></div><div class="card-b bars" id="qaQBars"></div></div>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="view" id="view-setup">
+    <div class="intro">
+      <div>
+        <h2>Setup: what Laila &amp; Co. configures for each client</h2>
+        <p>Change the knowledge base or the escalation rules and the AI follows them on the next message. This is the work done in week 2 of the 30-day launch.</p>
+      </div>
+      <div class="row"><button class="btn" id="resetBtn">Reset demo</button></div>
+    </div>
+    <div class="setup-grid">
+      <div class="card">
+        <div class="card-h"><h3>Knowledge base</h3><span class="small muted">The AI answers only from this</span></div>
+        <div class="card-b">
+          <label class="f" for="brandInput">Business name</label>
+          <input class="inp" id="brandInput">
+          <label class="f" for="toneSelect">Tone of voice</label>
+          <select class="inp" id="toneSelect">
+            <option value="warm and professional">Warm and professional</option>
+            <option value="friendly and casual">Friendly and casual</option>
+            <option value="formal and concise">Formal and concise</option>
+          </select>
+          <label class="f" for="kbInput">Policies and answers</label>
+          <textarea class="inp" id="kbInput" dir="auto"></textarea>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Escalation rules</h3><span class="small muted">When the AI must hand over</span></div>
+        <div class="card-b">
+          <div class="rules" id="rules"></div>
+          <form class="row" id="ruleForm" style="margin-top:10px">
+            <input class="inp" id="ruleInput" placeholder="Add a rule, for example: any question about wholesale orders" style="flex:1">
+            <button class="btn" type="submit">Add</button>
+          </form>
+          <label class="f" style="margin-top:18px">AI engine</label>
+          <label class="switch"><input type="checkbox" id="liveToggle" checked><span class="sw"></span><span id="liveLabel">Use live AI when available</span></label>
+          <p class="small muted" style="margin:8px 0 0">Live AI understands free-form Arabic and English in any dialect. When it is not available, the demo falls back to a simpler offline engine so it always works.</p>
+          <label class="f" style="margin-top:18px">Sample orders the AI can look up</label>
+          <div style="overflow-x:auto"><table id="ordersTable"></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="hidden" id="appFoot">Laila &amp; Co. demo at laila.ai. Nakhla Home is a fictional store, and all orders and customers here are made up.</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+const PASS_HASH = "a7f8e3ca3186e324fd7cf34fb8d17e60b98df77cb7c8e96bef854e539c298036";
+const STORE_KEY = "laila-demo-v1";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const isArabic = s => /[؀-ۿ]/.test(s || "");
+const hhmm = t => { const d = new Date(t); return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0"); };
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+/* ---------- Demo data ---------- */
+const NAMES = ["Noura","Faisal","Reem","Abdullah","Lama","Omar","Huda","Khalid"];
+function dayOffset(n){ const d = new Date(); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); }
+const ORDERS = {
+  "4521": { order_number:"4521", items:"Linen 3-seater sofa, sand", city:"Riyadh", status:"Shipped, with the delivery partner", ordered:dayOffset(-5), expected_delivery:dayOffset(3), payment:"Tabby, 4 installments", total_sar:3450 },
+  "4522": { order_number:"4522", items:"Velvet armchair, olive", city:"Jeddah", status:"Delivered", ordered:dayOffset(-9), delivered:dayOffset(-1), payment:"Mada", total_sar:1250 },
+  "4530": { order_number:"4530", items:"Oak dining table + 6 chairs", city:"Dammam", status:"Processing in warehouse, not shipped yet", ordered:dayOffset(-1), expected_delivery:dayOffset(8), payment:"Visa", total_sar:6900 },
+  "4588": { order_number:"4588", items:"Bedside lamp, brass", city:"Jeddah", status:"Out for delivery today", ordered:dayOffset(-3), expected_delivery:dayOffset(0), payment:"Apple Pay", total_sar:390 }
+};
+const DEFAULT_KB = `Nakhla Home is an online home furnishings store in Saudi Arabia.
+
+DELIVERY
+- Riyadh, Jeddah and Dammam: 2 to 4 business days. Other cities: 5 to 7 business days.
+- Large furniture (sofas, beds, dining sets): 7 to 10 business days, free assembly included.
+- Free delivery on orders over SAR 300. Otherwise SAR 25.
+
+ORDER CHANGES AND CANCELLATIONS
+- Orders can be changed or cancelled free of charge until they ship.
+- After shipping, the customer must wait for delivery and then request a return.
+
+RETURNS AND REFUNDS
+- Returns within 14 days of delivery, unused and in original packaging.
+- Refunds go back to the original payment method within 5 to 7 business days after pickup.
+- Furniture return pickup fee: SAR 99, waived if the item is damaged or defective.
+
+DAMAGED OR DEFECTIVE ITEMS
+- Customer should send photos within 48 hours of delivery. A team member always handles these personally.
+
+PAYMENT
+- Mada, Visa, Mastercard, Apple Pay, Tabby and Tamara (installments). Cash on delivery for orders up to SAR 1,000.
+
+WARRANTY
+- 1 year on all furniture against manufacturing defects.
+
+SUPPORT HOURS
+- AI assistant: 24/7. Human team: 9 am to 11 pm KSA time, every day.`;
+const DEFAULT_RULES = [
+  { id:"r1", text:"Damaged, broken or defective items", on:true },
+  { id:"r2", text:"Refund or compensation requests over SAR 500", on:true },
+  { id:"r3", text:"Customer asks for a person, manager or supervisor", on:true },
+  { id:"r4", text:"Customer is angry, threatens to complain, or says it is a repeated problem", on:true },
+  { id:"r5", text:"Question not covered by the knowledge base", on:true }
+];
+const CHIPS = [
+  "وين طلبي؟ رقم الطلب 4521",
+  "How long is delivery to Abha?",
+  "My armchair arrived with a broken leg, order 4522",
+  "ابي الغي طلب 4530 لو سمحت",
+  "Can I pay with Tamara?",
+  "ثالث مرة أتواصل معكم وما أحد رد! أبي أكلم المدير",
+  "Do you ship to Kuwait?"
+];
+const INTENT_LABEL = {
+  order_status:"Order status", delivery:"Delivery times", returns:"Returns and refunds", damaged_item:"Damaged item",
+  cancellation:"Change or cancel", payment:"Payment", product_question:"Product question", complaint:"Complaint",
+  human_request:"Asked for a person", other:"Other"
+};
+
+/* ---------- State ---------- */
+function defaultSetup(){ return { brand:"Nakhla Home", tone:"warm and professional", kb:DEFAULT_KB, rules:JSON.parse(JSON.stringify(DEFAULT_RULES)), useLive:true }; }
+let state = loadState() || { convs:[], currentId:null, setup:defaultSetup(), nameIdx:0, selInbox:null };
+function loadState(){ try { const raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
+function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e){} }
+
+/* ---------- AI capability ---------- */
+let sampleFn = null, aiStatus = "checking";
+async function initAI(){
+  let tries = 0;
+  while (!(window.claude && typeof window.claude.use === "function") && tries < 15){ await new Promise(r => setTimeout(r, 200)); tries++; }
+  try {
+    if (window.claude && typeof window.claude.use === "function"){
+      const s = await window.claude.use("sample");
+      if (s){ sampleFn = s; aiStatus = "live"; } else aiStatus = "offline";
+    } else aiStatus = "offline";
+  } catch(e){ aiStatus = "offline"; }
+  renderMode();
+}
+function useLive(){ return !!(sampleFn && state.setup.useLive && aiStatus === "live"); }
+function renderMode(){
+  const dot = $("#modeDot"), txt = $("#modeText");
+  dot.className = "dot";
+  if (aiStatus === "checking"){ txt.textContent = "Checking AI..."; return; }
+  if (useLive()){ dot.classList.add("live"); txt.textContent = "Live AI on"; }
+  else { dot.classList.add("off"); txt.textContent = aiStatus === "live" ? "Offline engine (switched off in Setup)" : "Offline engine"; }
+  $("#liveLabel").textContent = aiStatus === "live" ? "Use live AI" : "Live AI not available in this view, using offline engine";
+}
+
+/* ---------- Gate ---------- */
+async function sha256(t){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+function unlock(){
+  $("#gate").classList.add("hidden");
+  ["#appHeader","#appMain","#appFoot"].forEach(s => $(s).classList.remove("hidden"));
+  try { sessionStorage.setItem("laila-unlocked","1"); } catch(e){}
+  boot();
+}
+$("#gateForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const v = $("#gateInput").value.trim();
+  let ok = false;
+  try { ok = (await sha256(v)) === PASS_HASH; } catch(err){ ok = false; }
+  if (ok) unlock(); else { $("#gateErr").textContent = "That code is not right. Please check and try again."; $("#gateInput").select(); }
+});
+let unlockedBefore = false;
+try { unlockedBefore = sessionStorage.getItem("laila-unlocked") === "1"; } catch(e){}
+if (unlockedBefore) unlock(); else setTimeout(() => $("#gateInput").focus(), 50);
+
+/* ---------- Conversations ---------- */
+function current(){ return state.convs.find(c => c.id === state.currentId); }
+function newConversation(){
+  const name = NAMES[state.nameIdx % NAMES.length]; state.nameIdx++;
+  const c = { id:uid(), customer:name, channel:$("#channel") ? $("#channel").value : "Web chat", started:Date.now(), status:"ai", messages:[], turns:[], intents:[], language:null, escalation:null, csat:null, firstResponseMs:null, unread:0 };
+  state.convs.unshift(c); state.currentId = c.id; save(); return c;
+}
+function addMsg(c, from, text, extra){ c.messages.push(Object.assign({ from, text, t:Date.now() }, extra || {})); save(); }
+
+/* ---------- Offline engine ---------- */
+function offlineRespond(c, text){
+  const t = text.toLowerCase(); const ar = isArabic(text);
+  const rules = state.setup.rules.filter(r => r.on).map(r => r.id);
+  const orderMatch = text.match(/\b(\d{4})\b/) || text.match(/(\d{4})/);
+  const order = orderMatch ? ORDERS[orderMatch[1]] : null;
+  const has = (...w) => w.some(x => t.includes(x));
+  let intent = "other", reply = "", escalate = false, reason = "", conf = 0.55, tools = [];
+  const dmg = has("broken","damaged","defect","scratch","مكسور","مكسوره","تالف","خربان","معطوب","مخدوش","انكسر");
+  const human = has("manager","human","agent","supervisor","real person","المدير","مدير","موظف","شخص","مشرف","أكلم","اكلم");
+  const angry = has("third time","again!","worst","terrible","ridiculous","!!","ثالث مرة","ما أحد رد","ما احد رد","زهقت","سيء","سيئ","مهزلة","شكوى");
+  const refund = has("refund","money back","compensation","استرجاع المبلغ","استرداد","فلوسي","تعويض");
+  const cancel = has("cancel","change my order","الغي","ألغي","إلغاء","الغاء","اغير","أغير");
+  const delivery = has("delivery","deliver","ship","how long","arrive","توصيل","يوصل","توصلني","كم يوم","شحن");
+  const pay = has("pay","tabby","tamara","mada","apple pay","cash","installment","تابي","تمارا","مدى","كاش","تقسيط","دفع","الدفع");
+  const ret = has("return","exchange","ارجاع","إرجاع","ترجيع","استبدال","رجع");
+  const status = has("where is","where's","status","track","وين","حالة","طلبي","تتبع");
+  if (order) tools.push({ name:"lookup_order", input:orderMatch[1], found:true });
+  else if (orderMatch) tools.push({ name:"lookup_order", input:orderMatch[1], found:false });
+
+  if (dmg && rules.includes("r1")){
+    intent = "damaged_item"; escalate = true; reason = "Damaged or defective item"; conf = 0.9;
+    reply = ar ? "نعتذر جدًا عن هذا. أحوّلك الآن لأحد أعضاء فريقنا ليتابع معك شخصيًا، ولو تقدر ترسل صور للقطعة بيكون أسرع." : "I'm really sorry about that. I'm passing you to a member of our team now so they can sort this out personally. If you can, please share a few photos of the item.";
+  } else if ((human && rules.includes("r3")) || (angry && rules.includes("r4"))){
+    intent = human ? "human_request" : "complaint"; escalate = true; reason = human ? "Customer asked for a person" : "Angry or repeated complaint"; conf = 0.9;
+    reply = ar ? "أعتذر لك عن التأخير ومعك حق. حوّلت محادثتك الآن لأحد المسؤولين في فريقنا وبيرد عليك هنا خلال دقائق." : "I'm sorry for the trouble, and I understand your frustration. I've passed this to a senior member of our team, and they'll reply here within minutes.";
+  } else if (refund && order && order.total_sar > 500 && rules.includes("r2")){
+    intent = "returns"; escalate = true; reason = "Refund over SAR 500"; conf = 0.85;
+    reply = ar ? "تمام، بما إن الطلب قيمته أعلى من 500 ريال بيتابع معك أحد أعضاء الفريق مباشرة لترتيب الاسترجاع." : "Thanks. As this order is over SAR 500, a member of our team will take over to arrange the refund with you directly.";
+  } else if (cancel){
+    intent = "cancellation"; conf = 0.85;
+    if (order && /not shipped|processing/i.test(order.status)) reply = ar ? `طلبك رقم ${order.order_number} لسه ما انشحن، فتقدر تلغيه مجانًا. أكدت لك طلب الإلغاء وبيوصلك تأكيد على الإيميل، والمبلغ يرجع لنفس طريقة الدفع خلال 5 إلى 7 أيام عمل.` : `Your order ${order.order_number} hasn't shipped yet, so you can cancel it free of charge. I've logged the cancellation and you'll get an email confirmation. The refund goes back to your original payment method within 5 to 7 business days.`;
+    else if (order) reply = ar ? `طلبك رقم ${order.order_number} انشحن، فما نقدر نلغيه الحين. بعد ما يوصلك تقدر تطلب إرجاع خلال 14 يوم.` : `Your order ${order.order_number} has already shipped, so it can't be cancelled now. Once it arrives you can request a return within 14 days.`;
+    else reply = ar ? "تقدر تلغي أو تعدل الطلب مجانًا قبل الشحن. عطني رقم الطلب وأشيك لك." : "You can change or cancel free of charge until the order ships. Share your order number and I'll check for you.";
+  } else if (order && (status || !delivery)){
+    intent = "order_status"; conf = 0.92;
+    reply = ar ? `طلبك رقم ${order.order_number} (${order.items}) حالته: ${translateStatus(order.status)}. ${order.expected_delivery ? "التوصيل المتوقع: " + order.expected_delivery + "." : order.delivered ? "تم التوصيل بتاريخ " + order.delivered + "." : ""}` : `Your order ${order.order_number} (${order.items}) is: ${order.status}. ${order.expected_delivery ? "Expected delivery: " + order.expected_delivery + "." : order.delivered ? "Delivered on " + order.delivered + "." : ""}`;
+  } else if (orderMatch && !order){
+    intent = "order_status"; conf = 0.6;
+    reply = ar ? "ما لقيت طلب بهذا الرقم. ممكن تتأكد من الرقم؟ تلقاه في إيميل التأكيد." : "I couldn't find an order with that number. Could you double-check it? It's in your confirmation email.";
+  } else if (has("kuwait","uae","dubai","bahrain","qatar","oman","الكويت","الإمارات","دبي","البحرين","قطر","عمان")){
+    intent = "delivery"; conf = 0.4;
+    if (rules.includes("r5")){ escalate = true; reason = "Not covered by the knowledge base"; reply = ar ? "سؤال ممتاز، خليني أتأكد لك من فريقنا بخصوص الشحن خارج السعودية. بيرد عليك أحد الزملاء هنا قريب." : "Good question. Let me check shipping outside Saudi Arabia with our team. A colleague will reply here shortly."; }
+    else reply = ar ? "حاليًا نوصل داخل السعودية." : "We currently deliver within Saudi Arabia.";
+  } else if (delivery){
+    intent = "delivery"; conf = 0.88;
+    reply = ar ? "التوصيل للرياض وجدة والدمام من 2 إلى 4 أيام عمل، وباقي المدن من 5 إلى 7 أيام. الأثاث الكبير من 7 إلى 10 أيام مع تركيب مجاني. والتوصيل مجاني للطلبات فوق 300 ريال." : "Delivery to Riyadh, Jeddah and Dammam takes 2 to 4 business days, and 5 to 7 to other cities like Abha. Large furniture takes 7 to 10 business days with free assembly. Delivery is free on orders over SAR 300.";
+  } else if (pay){
+    intent = "payment"; conf = 0.9;
+    reply = ar ? "نعم! نقبل مدى وفيزا وماستركارد وApple Pay، والتقسيط عن طريق تابي وتمارا. والدفع عند الاستلام متاح للطلبات حتى 1,000 ريال." : "Yes! We accept Mada, Visa, Mastercard and Apple Pay, plus installments with Tabby and Tamara. Cash on delivery is available for orders up to SAR 1,000.";
+  } else if (ret || refund){
+    intent = "returns"; conf = 0.86;
+    reply = ar ? "تقدر ترجع المنتج خلال 14 يوم من التوصيل بشرط يكون غير مستخدم وبتغليفه الأصلي. المبلغ يرجع لنفس طريقة الدفع خلال 5 إلى 7 أيام عمل بعد الاستلام. للأثاث فيه رسوم استلام 99 ريال إلا إذا كان فيه عيب." : "You can return items within 14 days of delivery, unused and in the original packaging. Refunds go back to your original payment method within 5 to 7 business days after pickup. Furniture pickup costs SAR 99 unless the item is damaged or defective.";
+  } else if (has("hi","hello","hey","salam","مرحبا","السلام","هلا","اهلا","أهلا")){
+    intent = "other"; conf = 0.8;
+    reply = ar ? "هلا والله! أنا مساعد نخلة هوم. كيف أقدر أساعدك اليوم؟" : "Hi there! I'm Nakhla Home's assistant. How can I help you today?";
+  } else {
+    intent = "other"; conf = 0.35;
+    if (rules.includes("r5")){ escalate = true; reason = "Not covered by the knowledge base"; reply = ar ? "خليني أحوّل سؤالك لأحد أعضاء الفريق عشان يعطيك جواب دقيق. بيرد عليك هنا قريب." : "Let me pass this to a team member so you get an accurate answer. They'll reply here shortly."; }
+    else reply = ar ? "ممكن توضح سؤالك أكثر؟" : "Could you tell me a bit more about what you need?";
+  }
+  const lang = ar ? "Arabic" : "English";
+  const dialect = ar ? (/(ابي|أبي|وين|الحين|عطني|ثالث مرة|زين)/.test(text) ? "Gulf" : /(عايز|ازاي|فين|دلوقتي)/.test(text) ? "Egyptian" : "MSA") : "n/a";
+  const summary = escalate ? `${c.customer} (${lang}${dialect !== "n/a" ? ", " + dialect : ""}) ${INTENT_LABEL[intent].toLowerCase()}. ${order ? "Order " + order.order_number + ": " + order.items + ", " + order.status + ", SAR " + order.total_sar + "." : "No order number given."} Reason for handover: ${reason}.` : "";
+  const suggested = escalate ? (ar ? `أهلًا ${c.customer}، معك سارة من فريق نخلة هوم. شفت رسالتك وأنا متابعة معك الحين.` + (dmg ? " ممكن ترسل صور للقطعة عشان نرتب الاستبدال أو الاسترجاع بدون أي رسوم؟" : "") : `Hi ${c.customer}, this is Sara from the Nakhla Home team. I've read your messages and I'm on it now.` + (dmg ? " Could you send a couple of photos so we can arrange a free replacement or refund?" : "")) : "";
+  const qa = { accuracy: conf >= 0.8 ? 5 : 4, tone: 5, policy: 5, language: 5 };
+  return { reply, language:lang, dialect, intent, confidence:conf, escalate, escalation_reason:reason, summary_for_agent:summary, suggested_agent_reply:suggested, qa, tools, engine:"offline" };
+}
+function translateStatus(s){
+  const m = { "Shipped, with the delivery partner":"تم الشحن وهو مع شركة التوصيل", "Delivered":"تم التوصيل", "Processing in warehouse, not shipped yet":"قيد التجهيز في المستودع ولم يُشحن بعد", "Out for delivery today":"خرج للتوصيل اليوم" };
+  return m[s] || s;
+}
+
+/* ---------- Live AI engine ---------- */
+async function liveRespond(c){
+  const s = state.setup;
+  const rules = s.rules.filter(r => r.on).map((r,i) => `${i+1}. ${r.text}`).join("\n") || "None";
+  const transcript = c.messages.filter(m => m.from !== "system").map(m => `${m.from === "customer" ? "Customer" : m.from === "agent" ? "Human agent" : "AI agent"}: ${m.text}`).join("\n");
+  const tools = [];
+  const prompt = `You are the AI customer support agent for ${s.brand}, run by Laila & Co. Today's date is ${dayOffset(0)}.
+Tone: ${s.tone}. Reply in the same language and dialect as the customer's latest message (Gulf Arabic if they write Gulf Arabic, Egyptian Arabic if Egyptian, Modern Standard Arabic if formal, English if English). Keep replies under 70 words. Never invent policies, prices, dates or promises: use ONLY the knowledge base and the lookup_order tool. If an order number is mentioned, call lookup_order before answering.
+
+KNOWLEDGE BASE:
+${s.kb}
+
+ESCALATION RULES (if ANY applies, set "escalate": true, tell the customer warmly that a team member will take over here shortly, and do not promise refunds or outcomes yourself):
+${rules}
+
+CONVERSATION SO FAR:
+${transcript}
+
+Respond with ONLY one JSON object, no other text, with exactly these keys:
+{"reply": string (message to the customer),
+ "language": "Arabic" | "English" | "Mixed",
+ "dialect": "Gulf" | "Egyptian" | "Levantine" | "MSA" | "n/a",
+ "intent": one of "order_status","delivery","returns","damaged_item","cancellation","payment","product_question","complaint","human_request","other",
+ "confidence": number 0 to 1 (how sure you are the answer is fully covered by the knowledge base),
+ "escalate": boolean,
+ "escalation_reason": string (short, English, empty if not escalating),
+ "summary_for_agent": string (English, 1 to 2 sentences a human agent can act on without re-reading; empty if not escalating),
+ "suggested_agent_reply": string (in the customer's language, signed as Sara from the ${s.brand} team; empty if not escalating),
+ "qa": {"accuracy": 1-5, "tone": 1-5, "policy": 1-5, "language": 1-5} (honest self-check of your reply)}`;
+  const res = await sampleFn(prompt, {
+    cache:false,
+    tools:[{
+      name:"lookup_order",
+      description:"Look up a Nakhla Home order by its 4-digit order number. Returns status, items, city, dates, payment and total, or found:false.",
+      inputSchema:{ type:"object", properties:{ order_number:{ type:"string", description:"The 4-digit order number" } }, required:["order_number"] },
+      execute: async (input) => {
+        const n = String((input && input.order_number) || "").replace(/\D/g, "").slice(0, 4);
+        const o = ORDERS[n];
+        tools.push({ name:"lookup_order", input:n, found:!!o });
+        return o ? Object.assign({ found:true }, o) : { found:false, order_number:n };
+      }
+    }]
+  });
+  const out = parseJSON(res && res.text);
+  if (!out || !out.reply) throw new Error("bad output");
+  out.tools = tools; out.engine = "live";
+  out.confidence = Math.max(0, Math.min(1, Number(out.confidence) || 0));
+  if (!INTENT_LABEL[out.intent]) out.intent = "other";
+  out.escalate = !!out.escalate;
+  return out;
+}
+function parseJSON(text){
+  if (!text) return null;
+  const a = text.indexOf("{"), b = text.lastIndexOf("}");
+  if (a < 0 || b <= a) return null;
+  try { return JSON.parse(text.slice(a, b + 1)); } catch(e){ return null; }
+}
+
+/* ---------- Sending ---------- */
+let busy = false;
+async function sendCustomer(text){
+  text = text.trim(); if (!text || busy) return;
+  let c = current(); if (!c) c = newConversation();
+  c.channel = $("#channel").value;
+  addMsg(c, "customer", text);
+  renderChat();
+  if (c.status === "escalated"){
+    c.unread = (c.unread || 0) + 1; save();
+    if (!c.messages.some((m, i) => m.from === "system" && i === c.messages.length - 2)) {}
+    renderInboxBadge(); renderInbox();
+    toast("Sent to the agent inbox");
+    return;
+  }
+  if (c.status === "resolved_agent"){ c.status = "ai"; }
+  busy = true; $("#sendBtn").disabled = true; showTyping(true);
+  const t0 = performance.now();
+  let r, fellBack = false;
+  try {
+    if (useLive()) r = await liveRespond(c);
+    else { await new Promise(res => setTimeout(res, 650 + Math.min(900, text.length * 8))); r = offlineRespond(c, text); }
+  } catch(e){
+    if (e && e.code === "not_granted"){ aiStatus = "offline"; renderMode(); }
+    r = offlineRespond(c, text); fellBack = true;
+  }
+  const ms = Math.round(performance.now() - t0);
+  showTyping(false); busy = false; $("#sendBtn").disabled = false;
+  if (c.firstResponseMs == null) c.firstResponseMs = ms;
+  addMsg(c, "ai", r.reply, { name: state.setup.brand + " assistant" });
+  c.language = !c.language ? r.language : (c.language !== r.language ? "Mixed" : c.language);
+  if (!c.intents.includes(r.intent)) c.intents.push(r.intent);
+  c.turns.push({ t:Date.now(), text, ms, fellBack, r });
+  if (r.escalate){
+    c.status = "escalated";
+    c.escalation = { reason:r.escalation_reason || "Escalation rule", summary:r.summary_for_agent || "", suggested:r.suggested_agent_reply || "", at:Date.now() };
+    c.unread = 0;
+    addMsg(c, "system", "Handed over to the Laila & Co. team: " + (r.escalation_reason || "escalation rule"));
+    toast("Escalated to the agent inbox");
+  }
+  save(); renderChat(); renderTrace(); renderInboxBadge(); renderInbox(); renderReports();
+}
+
+/* ---------- Render: chat ---------- */
+function bubble(m){
+  if (m.from === "system") return `<div class="msg system">${esc(m.text)}</div>`;
+  const dir = isArabic(m.text) ? "rtl" : "ltr";
+  const who = m.from === "customer" ? "" : m.from === "agent" ? `<span class="who">${esc(m.name || "Agent")}</span>` : `<span class="who">${esc(m.name || "AI assistant")}</span>`;
+  return `<div class="msg ${m.from}" dir="${dir}">${who}${esc(m.text)}<span class="t">${hhmm(m.t)}</span></div>`;
+}
+function renderChat(){
+  const c = current();
+  $("#storeName").textContent = state.setup.brand;
+  $("#storeLogo").textContent = (state.setup.brand || "N").trim().charAt(0).toUpperCase();
+  $("#clientPill").textContent = "Client: " + state.setup.brand + " (demo store)";
+  const box = $("#msgs");
+  if (!c || !c.messages.length){
+    box.innerHTML = `<div class="msg system">Start a conversation as a ${esc(state.setup.brand)} customer.<br>ابدأ المحادثة كعميل.</div>`;
+  } else box.innerHTML = c.messages.map(bubble).join("");
+  const typing = $("#typingEl"); if (typing) box.appendChild(typing);
+  box.scrollTop = box.scrollHeight;
+  $("#custLabel").textContent = "Customer: " + (c ? c.customer : NAMES[state.nameIdx % NAMES.length]);
+  $("#storeSub").textContent = c && c.status === "escalated" ? "A team member is with you" : "Replies instantly, 24/7";
+  renderRate();
+}
+function showTyping(on){
+  const box = $("#msgs"); let el = $("#typingEl");
+  if (on && !el){ el = document.createElement("div"); el.id = "typingEl"; el.className = "typing"; el.innerHTML = "<i></i><i></i><i></i>"; box.appendChild(el); box.scrollTop = box.scrollHeight; }
+  if (!on && el) el.remove();
+}
+function renderRate(){
+  const c = current(); const el = $("#rate");
+  if (!c || !c.messages.some(m => m.from === "ai" || m.from === "agent")){ el.innerHTML = `<span class="muted">Rate chat</span>`; return; }
+  el.innerHTML = `<span class="muted">Rate</span>` + [1,2,3,4,5].map(n => `<button data-csat="${n}" class="${c.csat === n ? "on" : ""}" aria-label="Rate ${n} of 5">${n}</button>`).join("");
+}
+function renderChips(){
+  $("#chips").innerHTML = CHIPS.map(t => `<button class="chip" dir="auto">${esc(t)}</button>`).join("");
+}
+function renderTrace(){
+  const c = current(); const el = $("#trace");
+  if (!c || !c.turns.length){ el.innerHTML = `<div class="trace-empty">Send a message to see how the AI reads it and decides what to do.</div>`; $("#traceCount").textContent = ""; return; }
+  $("#traceCount").textContent = c.turns.length + (c.turns.length === 1 ? " message analysed" : " messages analysed");
+  el.innerHTML = c.turns.slice().reverse().map(tu => {
+    const r = tu.r;
+    const decision = r.escalate ? `<span class="tag esc">Escalated to a human</span>` : `<span class="tag ok">Answered by AI</span>`;
+    const toolsTxt = r.tools && r.tools.length ? r.tools.map(x => `Order lookup ${esc(x.input)}: ${x.found ? "found" : "not found"}`).join("; ") : "None needed";
+    const qa = r.qa || {};
+    const qavg = avgQA(qa);
+    return `<div class="step">
+      <div class="step-h"><b dir="auto">"${esc(tu.text.length > 70 ? tu.text.slice(0, 70) + "..." : tu.text)}"</b>${decision}</div>
+      <dl class="kv">
+        <dt>Language</dt><dd>${esc(r.language)}${r.dialect && r.dialect !== "n/a" ? " (" + esc(r.dialect) + ")" : ""}</dd>
+        <dt>Intent</dt><dd>${esc(INTENT_LABEL[r.intent] || r.intent)}</dd>
+        <dt>Confidence</dt><dd>${Math.round(r.confidence * 100)}%<div class="conf"><i style="width:${Math.round(r.confidence * 100)}%"></i></div></dd>
+        <dt>Tools used</dt><dd>${toolsTxt}</dd>
+        ${r.escalate ? `<dt>Why handed over</dt><dd>${esc(r.escalation_reason)}</dd>` : ""}
+        <dt>Response time</dt><dd>${(tu.ms / 1000).toFixed(1)} s <span class="tag info">${r.engine === "live" ? "Live AI" : "Offline engine"}</span>${tu.fellBack ? ' <span class="tag warn">fallback</span>' : ""}</dd>
+      </dl>
+      <div class="qa-row"><span>Auto-QA ${qavg ? qavg.toFixed(1) : "-"} / 5</span><span>Accuracy ${qa.accuracy || "-"}</span><span>Tone ${qa.tone || "-"}</span><span>Policy ${qa.policy || "-"}</span><span>Language ${qa.language || "-"}</span></div>
+    </div>`;
+  }).join("");
+}
+function avgQA(qa){ const v = ["accuracy","tone","policy","language"].map(k => Number(qa && qa[k])).filter(n => n > 0); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : 0; }
+
+/* ---------- Render: inbox ---------- */
+function escalated(){ return state.convs.filter(c => c.escalation); }
+function renderInboxBadge(){
+  const n = state.convs.filter(c => c.status === "escalated").length;
+  const b = $("#inboxBadge"); b.textContent = n; b.classList.toggle("hidden", n === 0);
+}
+function renderInbox(){
+  const list = escalated();
+  $("#qCount").textContent = list.filter(c => c.status === "escalated").length + " open";
+  $("#qlist").innerHTML = list.length ? list.map(c => {
+    const last = c.messages.filter(m => m.from === "customer").slice(-1)[0];
+    const open = c.status === "escalated";
+    return `<button class="qitem ${state.selInbox === c.id ? "sel" : ""}" data-conv="${c.id}">
+      <b><span>${esc(c.customer)} <span class="small muted">· ${esc(c.channel)}</span></span>${open ? `<span class="tag esc">${c.unread ? c.unread + " new" : "Open"}</span>` : `<span class="tag ok">Resolved</span>`}</b>
+      <span class="small muted">${esc(c.escalation.reason)}</span>
+      <span class="snip" dir="auto">${esc(last ? last.text : "")}</span>
+    </button>`;
+  }).join("") : `<div class="trace-empty">Nothing in the queue yet.</div>`;
+  const c = state.convs.find(x => x.id === state.selInbox) || null;
+  if (!c){
+    $("#convTitle").textContent = "Select a conversation"; $("#convStatus").innerHTML = "";
+    $("#convPane").innerHTML = `<div class="trace-empty">${list.length ? "Pick a conversation from the queue." : "No escalations yet. Try telling the AI an item arrived damaged, or ask for a manager."}</div>`;
+    return;
+  }
+  $("#convTitle").textContent = c.customer + " · " + c.channel;
+  $("#convStatus").innerHTML = c.status === "escalated" ? `<span class="tag esc">Waiting for agent</span>` : `<span class="tag ok">Resolved by agent</span>`;
+  const keep = $("#agentReply") ? $("#agentReply").value : null;
+  $("#convPane").innerHTML = `
+    <div class="handoff">
+      <h4>AI handover note</h4>
+      <div class="small"><b>Reason:</b> ${esc(c.escalation.reason)}</div>
+      <div class="small" style="margin-top:4px">${esc(c.escalation.summary || "No summary.")}</div>
+      <div class="small muted" style="margin-top:4px">Intents: ${c.intents.map(i => esc(INTENT_LABEL[i] || i)).join(", ")} · Escalated at ${hhmm(c.escalation.at)}</div>
+    </div>
+    <div class="transcript">${c.messages.map(bubble).join("")}</div>
+    ${c.status === "escalated" ? `<div class="reply-box">
+      <label class="f" for="agentReply">Reply as Sara (Laila &amp; Co. agent). The AI suggested this; edit it as you like.</label>
+      <textarea id="agentReply" dir="auto"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="viewChatBtn">Open customer view</button>
+        <span class="spacer"></span>
+        <button class="btn" id="resolveBtn">Mark resolved</button>
+        <button class="btn primary" id="agentSend">Send reply</button>
+      </div>
+    </div>` : `<div class="row"><button class="btn" id="viewChatBtn">Open customer view</button></div>`}`;
+  const ta = $("#agentReply"); if (ta) ta.value = keep != null && state._lastInbox === c.id ? keep : (c.escalation.suggested || "");
+  state._lastInbox = c.id;
+  const tr = $("#convPane .transcript"); if (tr) tr.scrollTop = tr.scrollHeight;
+  if (c.unread){ c.unread = 0; save(); }
+}
+
+/* ---------- Render: reports ---------- */
+const SAMPLE_WEEK = {
+  convs:412, aiResolved:0.63, escalated:152, avgFirst:2.4, csat:4.5, qa:4.6,
+  intents:{ order_status:131, delivery:84, returns:58, payment:41, cancellation:33, damaged_item:24, complaint:19, human_request:12, product_question:10 },
+  lang:{ Arabic:0.71, English:0.24, Mixed:0.05 },
+  outcome:{ "Resolved by AI":260, "Resolved by human team":146, "Waiting":6 }
+};
+function renderReports(){
+  const sample = $("#sampleToggle").checked;
+  $("#sampleNote").classList.toggle("hidden", !sample);
+  let k, intents, langs, outcomes;
+  if (sample){
+    const s = SAMPLE_WEEK;
+    k = { convs:s.convs, ai:Math.round(s.aiResolved * 100) + "%", esc:s.escalated, first:s.avgFirst.toFixed(1) + " s", csat:s.csat.toFixed(1), qa:s.qa.toFixed(1) };
+    intents = s.intents; langs = Object.fromEntries(Object.entries(s.lang).map(([a, b]) => [a, Math.round(b * s.convs)])); outcomes = s.outcome;
+  } else {
+    const cs = state.convs.filter(c => c.messages.some(m => m.from === "customer"));
+    const n = cs.length;
+    const escN = cs.filter(c => c.escalation).length;
+    const aiOnly = cs.filter(c => !c.escalation && c.turns.length).length;
+    const firsts = cs.map(c => c.firstResponseMs).filter(x => x != null);
+    const csats = cs.map(c => c.csat).filter(x => x);
+    const qas = cs.flatMap(c => c.turns.map(t => avgQA(t.r.qa))).filter(x => x > 0);
+    k = { convs:n, ai:n ? Math.round(aiOnly / n * 100) + "%" : "-", esc:escN, first:firsts.length ? (firsts.reduce((a, b) => a + b, 0) / firsts.length / 1000).toFixed(1) + " s" : "-", csat:csats.length ? (csats.reduce((a, b) => a + b, 0) / csats.length).toFixed(1) : "-", qa:qas.length ? (qas.reduce((a, b) => a + b, 0) / qas.length).toFixed(1) : "-" };
+    intents = {}; cs.forEach(c => c.intents.forEach(i => intents[i] = (intents[i] || 0) + 1));
+    langs = {}; cs.forEach(c => { const l = c.language || "Unknown"; langs[l] = (langs[l] || 0) + 1; });
+    outcomes = { "Resolved by AI":aiOnly, "Resolved by human team":cs.filter(c => c.status === "resolved_agent").length, "Waiting":cs.filter(c => c.status === "escalated").length };
+  }
+  $("#kpis").innerHTML = [
+    ["Conversations", k.convs, sample ? "this week" : "in this demo"],
+    ["Resolved by AI", k.ai, "no human needed"],
+    ["Escalated", k.esc, "handed to agents"],
+    ["First response", k.first, "average"],
+    ["CSAT", k.csat, "out of 5"],
+    ["Auto-QA", k.qa, "out of 5"]
+  ].map(([a, b, c]) => `<div class="kpi"><span>${a}</span><b>${b}</b><small>${c}</small></div>`).join("");
+  $("#intentBars").innerHTML = barsHTML(Object.entries(intents).sort((a, b) => b[1] - a[1]).map(([i, v]) => [INTENT_LABEL[i] || i, v]), "");
+  const lb = barsHTML(Object.entries(langs).sort((a, b) => b[1] - a[1]), "c3");
+  const ob = barsHTML(Object.entries(outcomes), "c2");
+  $("#langBars").innerHTML = (lb ? `<div class="small muted">Language</div>` + lb : "") + (ob ? `<div class="small muted" style="margin-top:8px">Outcome</div>` + ob : "") || `<div class="trace-empty">No conversations yet.</div>`;
+  if (!$("#intentBars").innerHTML) $("#intentBars").innerHTML = `<div class="trace-empty">No conversations yet.</div>`;
+  const rows = sample ? [] : state.convs.filter(c => c.turns.length).slice(0, 25);
+  $("#logTable").innerHTML = `<thead><tr><th>Time</th><th>Customer</th><th>First message</th><th>Intent</th><th>Language</th><th>Outcome</th><th>Auto-QA</th><th>CSAT</th></tr></thead><tbody>` +
+    (sample ? `<tr><td colspan="8" class="muted">The sample week shows totals only. Switch it off to see the log of conversations from this demo.</td></tr>` :
+    rows.length ? rows.map(c => {
+      const first = c.messages.find(m => m.from === "customer");
+      const qs = c.turns.map(t => avgQA(t.r.qa)).filter(x => x > 0);
+      const out = c.status === "escalated" ? `<span class="tag esc">With agent</span>` : c.status === "resolved_agent" ? `<span class="tag info">Resolved by agent</span>` : `<span class="tag ok">AI resolved</span>`;
+      return `<tr><td>${hhmm(c.started)}</td><td>${esc(c.customer)}</td><td dir="auto">${esc(first ? (first.text.length > 48 ? first.text.slice(0, 48) + "..." : first.text) : "")}</td><td>${c.intents.map(i => esc(INTENT_LABEL[i] || i)).join(", ")}</td><td>${esc(c.language || "")}</td><td>${out}</td><td>${qs.length ? (qs.reduce((a, b) => a + b, 0) / qs.length).toFixed(1) : "-"}</td><td>${c.csat || "-"}</td></tr>`;
+    }).join("") : `<tr><td colspan="8" class="muted">No conversations yet. Start one in Live chat.</td></tr>`) + `</tbody>`;
+}
+function barsHTML(entries, cls){
+  if (!entries.length) return "";
+  const max = Math.max(...entries.map(e => e[1]), 1);
+  const total = entries.reduce((a, e) => a + e[1], 0) || 1;
+  return entries.map(([l, v]) => `<div class="bar"><span>${esc(l)}</span><span class="track"><span class="fill ${cls}" style="width:${Math.round(v / max * 100)}%;display:block"></span></span><em>${Math.round(v / total * 100)}%</em></div>`).join("");
+}
+
+/* ---------- Render: setup ---------- */
+function renderSetup(){
+  $("#brandInput").value = state.setup.brand;
+  $("#toneSelect").value = state.setup.tone;
+  $("#kbInput").value = state.setup.kb;
+  $("#liveToggle").checked = state.setup.useLive;
+  renderRules();
+  $("#ordersTable").innerHTML = `<thead><tr><th>Order</th><th>Items</th><th>City</th><th>Status</th><th>SAR</th></tr></thead><tbody>` +
+    Object.values(ORDERS).map(o => `<tr><td>${o.order_number}</td><td>${esc(o.items)}</td><td>${esc(o.city)}</td><td>${esc(o.status)}</td><td>${o.total_sar.toLocaleString()}</td></tr>`).join("") + `</tbody>`;
+}
+function renderRules(){
+  $("#rules").innerHTML = state.setup.rules.map(r => `<label class="rule"><input type="checkbox" data-rule="${r.id}" ${r.on ? "checked" : ""}><span>${esc(r.text)}</span>${/^r[1-5]$/.test(r.id) ? "" : `<button class="x" type="button" data-del="${r.id}" aria-label="Remove rule">✕</button>`}</label>`).join("");
+}
+
+
+/* ---------- QA studio ---------- */
+const DEFAULT_CARD = [
+  { id:"q_greet", text:"Greeted the customer and introduced themselves", type:"yesno", weight:5, autofail:false },
+  { id:"q_lang", text:"Matched the customer's language and dialect", type:"scale", weight:10, autofail:false },
+  { id:"q_understand", text:"Understood the issue without making the customer repeat themselves", type:"scale", weight:15, autofail:false },
+  { id:"q_accuracy", text:"Gave accurate information that matches the knowledge base", type:"scale", weight:20, autofail:false },
+  { id:"q_empathy", text:"Showed empathy and a warm, professional tone", type:"scale", weight:15, autofail:false },
+  { id:"q_policy", text:"Followed policy: no promises, refunds or compensation outside policy", type:"yesno", weight:15, autofail:true },
+  { id:"q_resolve", text:"Resolved the issue or gave a clear next step and timeline", type:"scale", weight:15, autofail:false },
+  { id:"q_close", text:"Closed the conversation properly", type:"yesno", weight:5, autofail:false }
+];
+const SAMPLE_CALLS = [
+  { id:"call-1", sample:true, channel:"Phone call", agent:"Omar (Laila & Co.)", customer:"Abdulrahman", duration:"4:12", minsAgo:95, transcript:[
+    { from:"agent", text:"هلا والله، معك عمر من نخلة هوم، كيف أقدر أخدمك؟" },
+    { from:"customer", text:"السلام عليكم، طلبت طاولة طعام رقم الطلب 4530 وأبي ألغيه، تأخر كثير." },
+    { from:"agent", text:"وعليكم السلام. لحظة أشيك لك... الطلب لسه في المستودع وما انشحن، فتقدر تلغيه مجانًا." },
+    { from:"customer", text:"تمام، ألغوه لو سمحت. ومتى ترجع فلوسي؟" },
+    { from:"agent", text:"تم الإلغاء، والمبلغ بيرجع لك قريب إن شاء الله." },
+    { from:"customer", text:"طيب، شكرًا." },
+    { from:"agent", text:"العفو." }
+  ]},
+  { id:"call-2", sample:true, channel:"Phone call", agent:"Sara (Laila & Co.)", customer:"Emily", duration:"3:05", minsAgo:70, transcript:[
+    { from:"agent", text:"Hi, you're through to Nakhla Home, this is Sara. How can I help today?" },
+    { from:"customer", text:"Hi Sara, I want to buy the oak dining set but I'd rather pay in installments. Is that possible?" },
+    { from:"agent", text:"Absolutely. You can split the payment with Tabby or Tamara at checkout, and there's no extra cost from our side. Delivery for large furniture is 7 to 10 business days with free assembly." },
+    { from:"customer", text:"Perfect, and if I don't like it?" },
+    { from:"agent", text:"You can return it within 14 days of delivery if it's unused and in its packaging. For furniture there's a SAR 99 pickup fee, unless it's damaged or defective." },
+    { from:"customer", text:"Great, that's clear. Thanks!" },
+    { from:"agent", text:"My pleasure. Is there anything else I can help with? Have a lovely day." }
+  ]},
+  { id:"call-3", sample:true, channel:"WhatsApp", agent:"Omar (Laila & Co.)", customer:"Maha", duration:"6 messages", minsAgo:40, transcript:[
+    { from:"customer", text:"وصلني الكنب مكسور من جهة وحدة! هذا ثالث يوم أراسلكم" },
+    { from:"agent", text:"أعتذر جدًا يا مها، معك حق. ممكن ترسلين صورة؟" },
+    { from:"customer", text:"أرسلتها أمس!! ما أحد يقرأ؟" },
+    { from:"agent", text:"شفتها الحين، آسف على التأخير. عشان ترضين بنرجع لك كامل المبلغ وفوقه تعويض 500 ريال." },
+    { from:"customer", text:"طيب متى؟" },
+    { from:"agent", text:"قريب إن شاء الله." }
+  ]}
+];
+
+function qaState(){
+  if (!state.qa) state.qa = { card: JSON.parse(JSON.stringify(DEFAULT_CARD)), items:{}, sel:null, filter:"all" };
+  return state.qa;
+}
+function qaInteractions(){
+  const chats = state.convs.filter(c => c.messages.some(m => m.from === "customer")).map(c => {
+    const human = c.messages.some(m => m.from === "agent");
+    return { id:c.id, sample:false, channel:c.channel || "Web chat", agent: human ? "Sara (Laila & Co.)" : "AI agent", customer:c.customer, started:c.started,
+      transcript: c.messages.filter(m => m.from !== "system").map(m => ({ from: m.from === "customer" ? "customer" : m.from === "ai" ? "ai" : "agent", text:m.text })) };
+  });
+  const calls = SAMPLE_CALLS.map(x => Object.assign({ started: Date.now() - x.minsAgo * 60000 }, x));
+  return chats.concat(calls);
+}
+function qaPct(q, v){
+  if (v == null || v === "na" || v === "") return null;
+  if (q.type === "yesno") return v === "yes" ? 100 : v === "no" ? 0 : null;
+  const n = Number(v); if (!(n >= 1 && n <= 5)) return null;
+  return (n - 1) / 4 * 100;
+}
+function qaCompute(values){
+  const card = qaState().card; let num = 0, den = 0, fail = false;
+  card.forEach(q => {
+    const p = qaPct(q, values[q.id]);
+    if (q.autofail && (values[q.id] === "no" || (q.type === "scale" && Number(values[q.id]) === 1))) fail = true;
+    if (p != null){ num += p * q.weight; den += q.weight; }
+  });
+  if (!den) return { score:null, fail };
+  return { score: fail ? 0 : Math.round(num / den), fail };
+}
+function qaAIValues(it){ const r = {}; ((it && it.ai && it.ai.answers) || []).forEach(a => r[a.id] = a.value); return r; }
+function qaFinalValues(it){
+  const v = qaAIValues(it);
+  if (it && it.human && it.human.overrides) Object.entries(it.human.overrides).forEach(([k, x]) => { if (x !== "" && x != null) v[k] = x; });
+  return v;
+}
+function qaStatus(it){
+  if (!it || !it.ai) return "unscored";
+  if (it.human && it.human.reviewed) return "done";
+  return "review";
+}
+
+/* Offline estimate engine */
+function qaOfflineScore(ix){
+  const agentText = ix.transcript.filter(m => m.from !== "customer").map(m => m.text).join(" \n ");
+  const custText = ix.transcript.filter(m => m.from === "customer").map(m => m.text).join(" \n ");
+  const low = agentText.toLowerCase(), clow = custText.toLowerCase();
+  const has = (t, ws) => ws.some(w => t.includes(w));
+  const find = (ws) => { const m = ix.transcript.find(x => x.from !== "customer" && ws.some(w => x.text.toLowerCase().includes(w))); return m ? m.text.slice(0, 90) : ""; };
+  const arC = isArabic(custText), arA = isArabic(agentText);
+  const out = [];
+  qaState().card.forEach(q => {
+    let value = "na", evidence = "", comment = "";
+    switch (q.id){
+      case "q_greet": { const w = ["hello","hi ","hi,","this is","أهلا","هلا","مرحبا","السلام عليكم","وعليكم السلام"]; value = has(low, w) ? "yes" : "no"; evidence = find(w); comment = value === "yes" ? "Opened with a greeting." : "No greeting or introduction."; break; }
+      case "q_lang": value = arC === arA ? 5 : 2; comment = arC === arA ? "Replied in the customer's language." : "Language did not match the customer."; break;
+      case "q_understand": value = has(clow, ["again","third time","repeat","ثالث","أرسلتها","قلت لك","ما أحد"]) ? 3 : 4; comment = value === 3 ? "Customer had to repeat or chase." : "Issue picked up quickly."; break;
+      case "q_accuracy": value = has(low, ["14 days","14 يوم","tabby","تابي","2 to 4","7 to 10","99","5 to 7","مجان"]) ? 5 : 4; comment = "Checked against the knowledge base (offline estimate)."; break;
+      case "q_empathy": { const w = ["sorry","apolog","understand","أعتذر","نعتذر","آسف","معك حق","pleasure"]; value = has(low, w) ? 5 : 3; evidence = find(w); comment = value === 5 ? "Warm and empathetic." : "Polite but no empathy shown."; break; }
+      case "q_policy": { const w = ["compensation","تعويض","on top","فوقه"]; const bad = has(low, w); value = bad ? "no" : "yes"; evidence = bad ? find(w) : ""; comment = bad ? "Promised compensation that is not in the policy." : "Stayed within policy."; break; }
+      case "q_resolve": { const w = ["days","business days","خلال","أيام","يوم عمل","today","اليوم"]; const vague = has(low, ["قريب","soon"]) && !has(low, w); value = vague ? 2 : has(low, w) ? 5 : 3; evidence = vague ? find(["قريب","soon"]) : find(w); comment = vague ? "Vague timeline given (\"soon\")." : value === 5 ? "Clear next step and timeline." : "Next step not fully clear."; break; }
+      case "q_close": { const w = ["anything else","lovely day","great day","شي ثاني","يومك","مع السلامة","العفو"]; value = has(low, w) ? "yes" : "no"; evidence = find(w); comment = value === "yes" ? "Closed the conversation." : "No proper close."; break; }
+      default: value = q.type === "yesno" ? "yes" : 4; comment = "Offline estimate: live AI gives a real answer for custom questions.";
+    }
+    out.push({ id:q.id, value, evidence, comment });
+  });
+  const tip = out.find(a => a.id === "q_policy" && a.value === "no") ? "Never promise compensation outside policy: escalate to the team lead instead."
+    : out.find(a => a.id === "q_resolve" && Number(a.value) <= 3) ? "Always give the customer a concrete timeline, for example \"5 to 7 business days\"."
+    : out.find(a => a.id === "q_empathy" && Number(a.value) <= 3) ? "Acknowledge the customer's feelings before solving the problem."
+    : "Strong interaction. Keep this standard.";
+  return { answers:out, summary:"Offline estimate based on keywords. Switch on live AI for a full review.", coaching_tip:tip, engine:"offline" };
+}
+
+/* Live AI scoring */
+async function qaLiveScore(ix){
+  const card = qaState().card;
+  const transcript = ix.transcript.map(m => `${m.from === "customer" ? "Customer" : m.from === "ai" ? "AI agent" : "Human agent"}: ${m.text}`).join("\n");
+  const qs = card.map(q => `- id "${q.id}": ${q.text} [answer ${q.type === "yesno" ? '"yes" or "no"' : "an integer 1 to 5"}, or "na" if it does not apply]${q.autofail ? " (critical)" : ""}`).join("\n");
+  const prompt = `You are a strict but fair customer support QA reviewer for ${state.setup.brand}. Score this ${ix.channel} interaction handled by ${ix.agent}.
+
+KNOWLEDGE BASE (the only source of truth for accuracy and policy):
+${state.setup.kb}
+
+SCORECARD:
+${qs}
+
+TRANSCRIPT:
+${transcript}
+
+Judge the support side only (AI agent and human agent together). Quote short evidence from the transcript for each answer (in its original language, max 15 words). Comments in English, one short sentence.
+Respond with ONLY one JSON object:
+{"answers":[{"id":string,"value":"yes"|"no"|"na"|1|2|3|4|5,"evidence":string,"comment":string}],"summary":string (2 sentences, English),"coaching_tip":string (one concrete tip for the agent, English)}`;
+  const res = await sampleFn(prompt, { cache:false });
+  const out = parseJSON(res && res.text);
+  if (!out || !Array.isArray(out.answers)) throw new Error("bad output");
+  out.answers = out.answers.filter(a => card.some(q => q.id === a.id)).map(a => {
+    const q = card.find(x => x.id === a.id);
+    let v = a.value;
+    if (q.type === "yesno"){ v = String(v).toLowerCase(); if (!["yes","no","na"].includes(v)) v = "na"; }
+    else { v = String(v).toLowerCase() === "na" ? "na" : Math.max(1, Math.min(5, Math.round(Number(v)) || 3)); }
+    return { id:a.id, value:v, evidence:String(a.evidence || "").slice(0, 160), comment:String(a.comment || "").slice(0, 200) };
+  });
+  out.engine = "live";
+  return out;
+}
+async function qaScore(ix){
+  let r;
+  try { r = useLive() ? await qaLiveScore(ix) : qaOfflineScore(ix); }
+  catch(e){ if (e && e.code === "not_granted"){ aiStatus = "offline"; renderMode(); } r = qaOfflineScore(ix); r.fellBack = true; }
+  const qa = qaState();
+  qa.items[ix.id] = Object.assign(qa.items[ix.id] || {}, { ai: Object.assign(r, { at:Date.now() }) });
+  save();
+}
+
+/* Render */
+function qaFmtVal(q, v){
+  if (v == null || v === "") return "-";
+  if (v === "na") return "N/A";
+  if (q.type === "yesno") return v === "yes" ? "Yes" : "No";
+  return v + " / 5";
+}
+function qaScoreTag(sc){
+  if (!sc || sc.score == null) return `<span class="tag info">Not scored</span>`;
+  if (sc.fail) return `<span class="tag esc">Auto-fail · 0%</span>`;
+  const cls = sc.score >= 85 ? "ok" : sc.score >= 70 ? "warn" : "esc";
+  return `<span class="tag ${cls}">${sc.score}%</span>`;
+}
+function renderQA(){
+  const qa = qaState(); const all = qaInteractions(); const card = qa.card;
+  $("#qaFilter").value = qa.filter || "all";
+  // KPIs
+  const scored = all.filter(ix => qa.items[ix.id] && qa.items[ix.id].ai);
+  const finals = scored.map(ix => qaCompute(qaFinalValues(qa.items[ix.id])));
+  const avg = finals.filter(f => f.score != null);
+  const reviewed = all.filter(ix => qaStatus(qa.items[ix.id]) === "done");
+  let agreeN = 0, agreeD = 0;
+  reviewed.forEach(ix => { const it = qa.items[ix.id]; const ai = qaAIValues(it); card.forEach(q => { if (ai[q.id] == null) return; agreeD++; const o = it.human.overrides && it.human.overrides[q.id]; if (o == null || o === "" || String(o) === String(ai[q.id])) agreeN++; }); });
+  $("#qaKpis").innerHTML = [
+    ["Interactions", all.length, "chats and calls"],
+    ["Scored by AI", scored.length, scored.length === all.length ? "all done" : (all.length - scored.length) + " waiting"],
+    ["Average QA score", avg.length ? Math.round(avg.reduce((a, f) => a + f.score, 0) / avg.length) + "%" : "-", "final score"],
+    ["Auto-fails", finals.filter(f => f.fail).length, "policy breaches"],
+    ["Human reviewed", reviewed.length, "by QA team"],
+    ["AI and human agree", agreeD ? Math.round(agreeN / agreeD * 100) + "%" : "-", "calibration"]
+  ].map(([a, b, c]) => `<div class="kpi"><span>${a}</span><b>${b}</b><small>${c}</small></div>`).join("");
+  // list
+  const f = qa.filter || "all";
+  const list = all.filter(ix => {
+    const it = qa.items[ix.id], st = qaStatus(it);
+    if (f === "unscored") return st === "unscored";
+    if (f === "review") return st === "review";
+    if (f === "done") return st === "done";
+    if (f === "fail") return it && it.ai && qaCompute(qaFinalValues(it)).fail;
+    return true;
+  }).sort((a, b) => b.started - a.started);
+  $("#qaList").innerHTML = list.length ? list.map(ix => {
+    const it = qa.items[ix.id]; const st = qaStatus(it);
+    const sc = it && it.ai ? qaCompute(qaFinalValues(it)) : null;
+    const stTag = st === "unscored" ? `<span class="tag info">Needs AI score</span>` : st === "review" ? `<span class="tag warn">Needs review</span>` : `<span class="tag ok">Reviewed</span>`;
+    const first = ix.transcript.find(m => m.from === "customer");
+    return `<button class="qitem ${qa.sel === ix.id ? "sel" : ""}" data-qa="${ix.id}">
+      <b><span>${esc(ix.customer)} <span class="small muted">· ${esc(ix.channel)}${ix.sample ? " · sample" : ""}</span></span>${qaScoreTag(sc)}</b>
+      <span class="small muted">${esc(ix.agent)} · ${hhmm(ix.started)}</span>
+      <span class="snip" dir="auto">${esc(first ? first.text : "")}</span>
+      <span style="display:block;margin-top:4px">${stTag}</span>
+    </button>`;
+  }).join("") : `<div class="trace-empty">Nothing here.</div>`;
+  // detail
+  const ix = all.find(x => x.id === qa.sel);
+  if (!ix){ $("#qaTitle").textContent = "Select an interaction"; $("#qaBadges").innerHTML = ""; $("#qaPane").innerHTML = `<div class="trace-empty">Pick a chat or call from the list to see its AI score and add your review.</div>`; }
+  else renderQADetail(ix);
+  // bars
+  const byAgent = {};
+  all.forEach(ix2 => { const it = qa.items[ix2.id]; if (!it || !it.ai) return; const s = qaCompute(qaFinalValues(it)).score; if (s == null) return; (byAgent[ix2.agent] = byAgent[ix2.agent] || []).push(s); });
+  const ab = Object.entries(byAgent).map(([a, v]) => [a, Math.round(v.reduce((x, y) => x + y, 0) / v.length)]).sort((a, b) => b[1] - a[1]);
+  $("#qaAgentBars").innerHTML = ab.length ? ab.map(([a, v]) => `<div class="bar"><span>${esc(a)}</span><span class="track"><span class="fill" style="width:${v}%;display:block"></span></span><em>${v}%</em></div>`).join("") : `<div class="trace-empty">Score some interactions first.</div>`;
+  const byQ = card.map(q => { const v = all.map(ix2 => qa.items[ix2.id]).filter(it => it && it.ai).map(it => qaPct(q, qaFinalValues(it)[q.id])).filter(x => x != null); return [q.text, v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null]; }).filter(x => x[1] != null).sort((a, b) => a[1] - b[1]).slice(0, 5);
+  $("#qaQBars").innerHTML = byQ.length ? byQ.map(([a, v]) => `<div class="bar"><span title="${esc(a)}">${esc(a.length > 30 ? a.slice(0, 30) + "..." : a)}</span><span class="track"><span class="fill c2" style="width:${Math.max(v, 2)}%;display:block"></span></span><em>${v}%</em></div>`).join("") : `<div class="trace-empty">Score some interactions first.</div>`;
+  renderQACard();
+}
+function renderQADetail(ix){
+  const qa = qaState(); const card = qa.card; const it = qa.items[ix.id];
+  $("#qaTitle").textContent = `${ix.customer} · ${ix.channel}${ix.duration ? " · " + ix.duration : ""}`;
+  const aiSc = it && it.ai ? qaCompute(qaAIValues(it)) : null;
+  const finSc = it && it.ai ? qaCompute(qaFinalValues(it)) : null;
+  $("#qaBadges").innerHTML = it && it.ai ? `<span class="small muted">AI</span> ${qaScoreTag(aiSc)} <span class="small muted" style="margin-left:6px">Final</span> ${qaScoreTag(finSc)}` : "";
+  const tr = ix.transcript.map(m => {
+    const cls = m.from === "customer" ? "customer" : m.from === "ai" ? "ai" : "agent";
+    const who = m.from === "customer" ? "" : `<span class="who">${m.from === "ai" ? "AI agent" : esc(ix.agent.replace(/^AI agent$/, "Agent"))}</span>`;
+    return `<div class="msg ${cls}" dir="${isArabic(m.text) ? "rtl" : "ltr"}">${who}${esc(m.text)}</div>`;
+  }).join("");
+  if (!it || !it.ai){
+    $("#qaPane").innerHTML = `<div class="row" style="margin-bottom:12px"><span class="small muted">Handled by ${esc(ix.agent)}${ix.sample ? " · sample transcript" : ""}</span><span class="spacer"></span><button class="btn primary" data-qa-score="${ix.id}">Score with AI</button></div><div class="transcript">${tr}</div>`;
+    return;
+  }
+  const ai = qaAIValues(it); const h = it.human || {}; const ov = h.overrides || {}; const notes = h.notes || {};
+  const ansById = {}; it.ai.answers.forEach(a => ansById[a.id] = a);
+  const opts = q => q.type === "yesno" ? [["","Agree with AI"],["yes","Yes"],["no","No"],["na","N/A"]] : [["","Agree with AI"],["5","5"],["4","4"],["3","3"],["2","2"],["1","1"],["na","N/A"]];
+  const rows = card.map(q => {
+    const a = ansById[q.id];
+    const changed = ov[q.id] != null && ov[q.id] !== "" && String(ov[q.id]) !== String(ai[q.id]);
+    return `<tr>
+      <td style="min-width:200px"><b style="font-weight:600">${esc(q.text)}</b><div class="small muted">Weight ${q.weight}${q.autofail ? ' · <span style="color:var(--red)">auto-fail</span>' : ""}</div></td>
+      <td style="min-width:200px"><b style="font-weight:600">${a ? qaFmtVal(q, a.value) : "-"}</b>${a && a.comment ? `<div class="small">${esc(a.comment)}</div>` : ""}${a && a.evidence ? `<div class="small muted" dir="auto">"${esc(a.evidence)}"</div>` : ""}${!a ? `<div class="small muted">Not scored yet. Re-score to include this question.</div>` : ""}</td>
+      <td style="min-width:170px"><select class="inp qa-ov ${changed ? "changed" : ""}" data-q="${q.id}">${opts(q).map(([v, l]) => `<option value="${v}" ${String(ov[q.id] ?? "") === v ? "selected" : ""}>${l}</option>`).join("")}</select>
+        <input class="inp qa-note" data-q="${q.id}" placeholder="Feedback (optional)" value="${esc(notes[q.id] || "")}" style="margin-top:6px"></td>
+    </tr>`;
+  }).join("");
+  $("#qaPane").innerHTML = `
+    <div class="qa-sum">
+      <div><span class="small muted">AI summary ${it.ai.engine === "live" ? '<span class="tag info">Live AI</span>' : '<span class="tag warn">Offline estimate</span>'}</span><div>${esc(it.ai.summary || "")}</div></div>
+      <div><span class="small muted">Coaching tip from AI</span><div>${esc(it.ai.coaching_tip || "")}</div></div>
+    </div>
+    <details class="qa-tr"><summary>Show transcript (${ix.transcript.length} messages)</summary><div class="transcript" style="margin-top:10px">${tr}</div></details>
+    <div style="overflow-x:auto;margin-top:12px"><table class="qa-table"><thead><tr><th>Question</th><th>AI score and evidence</th><th>Human QA</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="setup-grid" style="margin-top:14px">
+      <div><label class="f" for="qaOverall">Overall feedback</label><textarea class="inp" id="qaOverall" style="min-height:80px" placeholder="What went well, what to improve">${esc(h.overall || "")}</textarea></div>
+      <div><label class="f" for="qaCoach">Coaching note for ${esc(ix.agent)}</label><textarea class="inp" id="qaCoach" style="min-height:80px" placeholder="One action for the next shift">${esc(h.coaching || "")}</textarea></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <label class="small muted" for="qaReviewer">Reviewer</label><input class="inp" id="qaReviewer" style="width:180px" value="${esc(h.reviewer || "Amira")}">
+      <span class="spacer"></span>
+      <button class="btn" data-qa-score="${ix.id}">Re-score with AI</button>
+      <button class="btn primary" id="qaSave">${h.reviewed ? "Update review" : "Save review"}</button>
+    </div>
+    ${h.reviewed ? `<div class="small muted" style="margin-top:8px">Reviewed by ${esc(h.reviewer || "")} at ${hhmm(h.at)}</div>` : ""}`;
+}
+function renderQACard(){
+  const card = qaState().card;
+  const total = card.reduce((a, q) => a + Number(q.weight || 0), 0);
+  $("#qaCardTable").innerHTML = `<thead><tr><th>Question</th><th>Type</th><th>Weight</th><th>Auto-fail</th><th></th></tr></thead><tbody>` +
+    card.map(q => `<tr>
+      <td><input class="inp qc-text" data-q="${q.id}" value="${esc(q.text)}"></td>
+      <td>${q.type === "yesno" ? "Yes / No" : "1 to 5"}</td>
+      <td><input class="inp qc-w" data-q="${q.id}" type="number" min="1" max="50" value="${q.weight}" style="width:72px"></td>
+      <td><input type="checkbox" class="qc-af" data-q="${q.id}" ${q.autofail ? "checked" : ""} aria-label="Auto-fail"></td>
+      <td><button class="btn ghost qc-del" data-q="${q.id}" aria-label="Delete question">✕</button></td></tr>`).join("") +
+    `<tr><td colspan="5" class="small muted">Total weight: ${total}. New or edited questions apply the next time an interaction is scored.</td></tr></tbody>`;
+}
+function qaReadReview(){
+  const qa = qaState(); const it = qa.items[qa.sel]; if (!it) return null;
+  const h = it.human || {}; h.overrides = h.overrides || {}; h.notes = h.notes || {};
+  $$("#qaPane .qa-ov").forEach(s => h.overrides[s.dataset.q] = s.value);
+  $$("#qaPane .qa-note").forEach(i => h.notes[i.dataset.q] = i.value);
+  h.overall = ($("#qaOverall") || {}).value || ""; h.coaching = ($("#qaCoach") || {}).value || ""; h.reviewer = ($("#qaReviewer") || {}).value || "";
+  it.human = h; return it;
+}
+function bindQA(){
+  $("#qaFilter").addEventListener("change", e => { qaState().filter = e.target.value; save(); renderQA(); });
+  $("#qaList").addEventListener("click", e => { const b = e.target.closest("[data-qa]"); if (!b) return; qaState().sel = b.dataset.qa; save(); renderQA(); });
+  $("#qaPane").addEventListener("change", e => {
+    if (e.target.classList.contains("qa-ov")){ const it = qaReadReview(); save(); const ix = qaInteractions().find(x => x.id === qaState().sel); if (ix){ const fin = qaCompute(qaFinalValues(it)); const ai = qaCompute(qaAIValues(it)); $("#qaBadges").innerHTML = `<span class="small muted">AI</span> ${qaScoreTag(ai)} <span class="small muted" style="margin-left:6px">Final</span> ${qaScoreTag(fin)}`; } e.target.classList.toggle("changed", e.target.value !== ""); }
+  });
+  $("#qaPane").addEventListener("click", async e => {
+    const sb = e.target.closest("[data-qa-score]");
+    if (sb){ const ix = qaInteractions().find(x => x.id === sb.dataset.qaScore); if (!ix) return; sb.disabled = true; sb.textContent = "Scoring..."; await qaScore(ix); renderQA(); toast("Scored against the scorecard"); return; }
+    if (e.target.id === "qaSave"){ const it = qaReadReview(); if (!it) return; it.human.reviewed = true; it.human.at = Date.now(); save(); renderQA(); toast("Review saved"); }
+  });
+  $("#qaScoreAll").addEventListener("click", async () => {
+    const btn = $("#qaScoreAll"); const todo = qaInteractions().filter(ix => !(qaState().items[ix.id] && qaState().items[ix.id].ai));
+    if (!todo.length){ toast("Everything is already scored"); return; }
+    btn.disabled = true;
+    for (let i = 0; i < todo.length; i++){ btn.textContent = `Scoring ${i + 1} of ${todo.length}...`; await qaScore(todo[i]); renderQA(); }
+    btn.disabled = false; btn.textContent = "Score all with AI"; toast(`${todo.length} interactions scored`);
+  });
+  $("#qaEditCard").addEventListener("click", () => { $("#qaCardEditor").classList.toggle("hidden"); $("#qaEditCard").textContent = $("#qaCardEditor").classList.contains("hidden") ? "Edit scorecard" : "Close scorecard"; });
+  $("#qaCardTable").addEventListener("change", e => {
+    const q = qaState().card.find(x => x.id === e.target.dataset.q); if (!q) return;
+    if (e.target.classList.contains("qc-text")) q.text = e.target.value || q.text;
+    if (e.target.classList.contains("qc-w")) q.weight = Math.max(1, Math.min(50, Number(e.target.value) || 1));
+    if (e.target.classList.contains("qc-af")) q.autofail = e.target.checked;
+    save(); renderQA();
+  });
+  $("#qaCardTable").addEventListener("click", e => { const b = e.target.closest(".qc-del"); if (!b) return; const qa = qaState(); if (qa.card.length <= 1) return; qa.card = qa.card.filter(q => q.id !== b.dataset.q); save(); renderQA(); });
+  $("#qaAddQ").addEventListener("submit", e => { e.preventDefault(); const t = $("#qaNewQ").value.trim(); if (!t) return; qaState().card.push({ id:"q_" + uid(), text:t, type:$("#qaNewType").value, weight:Math.max(1, Math.min(50, Number($("#qaNewW").value) || 10)), autofail:false }); $("#qaNewQ").value = ""; save(); renderQA(); toast("Question added"); });
+}
+
+/* ---------- Toast ---------- */
+let toastT = null;
+function toast(t){ const el = $("#toast"); el.textContent = t; el.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("show"), 2200); }
+
+/* ---------- Navigation ---------- */
+function show(view){
+  $$("nav button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+  $$(".view").forEach(v => v.classList.toggle("active", v.id === "view-" + view));
+  if (view === "reports") renderReports();
+  if (view === "qa") renderQA();
+  if (view === "inbox"){
+    if (!state.selInbox){ const first = escalated().find(c => c.status === "escalated") || escalated()[0]; if (first) state.selInbox = first.id; }
+    renderInbox();
+  }
+  try { if (location.hash !== "#" + view) history.replaceState(null, "", "#" + view); } catch(e){}
+}
+
+/* ---------- Events ---------- */
+let booted = false;
+function boot(){
+  if (booted) return; booted = true;
+  if (!state.setup) state.setup = defaultSetup();
+  renderChips(); renderChat(); renderTrace(); renderInboxBadge(); renderInbox(); renderReports(); renderSetup(); renderMode(); renderQA(); bindQA();
+  initAI();
+  $$("nav button").forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
+  const h = (location.hash || "").replace("#", "");
+  if (["chat","inbox","qa","reports","setup"].includes(h)) show(h);
+  window.addEventListener("hashchange", () => { const v = location.hash.replace("#", ""); if (["chat","inbox","qa","reports","setup"].includes(v)) show(v); });
+
+  $("#composer").addEventListener("submit", e => { e.preventDefault(); const v = $("#msgInput").value; $("#msgInput").value = ""; sendCustomer(v); });
+  $("#chips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (b) sendCustomer(b.textContent); });
+  $("#newChatBtn").addEventListener("click", () => { newConversation(); renderChat(); renderTrace(); toast("New conversation started"); });
+  $("#rate").addEventListener("click", e => { const b = e.target.closest("[data-csat]"); if (!b) return; const c = current(); if (!c) return; c.csat = Number(b.dataset.csat); save(); renderRate(); renderReports(); toast("Thanks for rating the chat"); });
+
+  $("#qlist").addEventListener("click", e => { const b = e.target.closest("[data-conv]"); if (!b) return; state.selInbox = b.dataset.conv; state._lastInbox = null; save(); renderInbox(); renderInboxBadge(); });
+  $("#convPane").addEventListener("click", e => {
+    const c = state.convs.find(x => x.id === state.selInbox); if (!c) return;
+    if (e.target.id === "agentSend"){
+      const v = ($("#agentReply").value || "").trim(); if (!v) return;
+      addMsg(c, "agent", v, { name:"Sara (" + state.setup.brand + " team)" });
+      $("#agentReply").value = ""; state._lastInbox = c.id;
+      save(); renderInbox(); renderChat(); toast("Reply sent to the customer");
+    }
+    if (e.target.id === "resolveBtn"){
+      c.status = "resolved_agent"; addMsg(c, "system", "Resolved by the Laila & Co. team");
+      save(); renderInbox(); renderInboxBadge(); renderChat(); renderReports(); toast("Marked as resolved");
+    }
+    if (e.target.id === "viewChatBtn"){ state.currentId = c.id; save(); renderChat(); renderTrace(); show("chat"); }
+  });
+
+  $("#sampleToggle").addEventListener("change", renderReports);
+
+  $("#brandInput").addEventListener("input", e => { state.setup.brand = e.target.value || "Nakhla Home"; save(); renderChat(); });
+  $("#toneSelect").addEventListener("change", e => { state.setup.tone = e.target.value; save(); });
+  $("#kbInput").addEventListener("input", e => { state.setup.kb = e.target.value; save(); });
+  $("#liveToggle").addEventListener("change", e => { state.setup.useLive = e.target.checked; save(); renderMode(); });
+  $("#rules").addEventListener("change", e => { const id = e.target.dataset.rule; if (!id) return; const r = state.setup.rules.find(x => x.id === id); if (r){ r.on = e.target.checked; save(); } });
+  $("#rules").addEventListener("click", e => { const id = e.target.dataset && e.target.dataset.del; if (!id) return; e.preventDefault(); state.setup.rules = state.setup.rules.filter(r => r.id !== id); save(); renderRules(); });
+  $("#ruleForm").addEventListener("submit", e => { e.preventDefault(); const v = $("#ruleInput").value.trim(); if (!v) return; state.setup.rules.push({ id:"c" + uid(), text:v, on:true }); $("#ruleInput").value = ""; save(); renderRules(); toast("Rule added. The live AI follows it from the next message"); });
+
+  let resetArmed = false, resetT = null;
+  $("#resetBtn").addEventListener("click", () => {
+    if (!resetArmed){ resetArmed = true; $("#resetBtn").textContent = "Click again to reset everything"; $("#resetBtn").classList.add("coral"); resetT = setTimeout(() => { resetArmed = false; $("#resetBtn").textContent = "Reset demo"; $("#resetBtn").classList.remove("coral"); }, 3500); return; }
+    clearTimeout(resetT); resetArmed = false; $("#resetBtn").textContent = "Reset demo"; $("#resetBtn").classList.remove("coral");
+    state = { convs:[], currentId:null, setup:defaultSetup(), nameIdx:0, selInbox:null }; save();
+    renderChat(); renderTrace(); renderInboxBadge(); renderInbox(); renderReports(); renderSetup(); renderMode(); renderQA(); toast("Demo reset");
+  });
+}
+})();
+</script>
+</body>
+</html>
