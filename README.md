@@ -6,6 +6,6 @@ Live demo of the Laila & Co. support console: an AI agent in Arabic and English,
 
 - Live site: https://amirafikry1991.github.io/laila-co/
 - Demo access code: ask Amira
-- Nakhla Home is a fictional store. All orders, customers and calls in the demo are made up.
+- Najma Home is a fictional store. All orders, customers and calls in the demo are made up.
 
 The demo runs fully in the browser on an offline engine. Live AI can be switched on later through a small backend.

@@ -233,7 +233,7 @@ footer{max-width:1240px;margin:0 auto;padding:8px 20px 28px;color:var(--muted);f
  <path mask="url(#hdm)" d="M6 16a10 10 0 0 1 10-10h32a10 10 0 0 1 10 10v24a10 10 0 0 1-10 10H27l-13 11a1.5 1.5 0 0 1-2.5-1.2V50A6 6 0 0 1 6 44z" fill="url(#hd)"/>
  <path d="M23 17v15.5a3.5 3.5 0 0 0 3.5 3.5H40" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
  <circle cx="54" cy="10" r="7" fill="#2BD47D"/></svg><span class="wordmark" style="font-size:22px">laila <span class="amp">&amp; co</span></span></div>
-    <span class="client-pill" id="clientPill">Client: Nakhla Home (demo store)</span>
+    <span class="client-pill" id="clientPill">Client: Najma Home (demo store)</span>
     <span class="mode-pill" id="modePill"><span class="dot" id="modeDot"></span><span id="modeText">Checking AI...</span></span>
   </div>
   <nav>
@@ -262,7 +262,7 @@ footer{max-width:1240px;margin:0 auto;padding:8px 20px 28px;color:var(--muted);f
       <div class="phone">
         <div class="phone-top">
           <div class="store-logo" id="storeLogo">N</div>
-          <div class="store-meta"><b id="storeName">Nakhla Home</b><span id="storeSub">Replies instantly, 24/7</span></div>
+          <div class="store-meta"><b id="storeName">Najma Home</b><span id="storeSub">Replies instantly, 24/7</span></div>
           <select class="chan" id="channel" aria-label="Channel"><option>Web chat</option><option>WhatsApp</option></select>
         </div>
         <div class="msgs" id="msgs" aria-live="polite"></div>
@@ -280,7 +280,7 @@ footer{max-width:1240px;margin:0 auto;padding:8px 20px 28px;color:var(--muted);f
         <div class="explain" id="explainBox">
           <b>How this demo works</b>
           <ol>
-            <li>The AI answers from Nakhla Home's knowledge base and can look up orders (try order 4521, 4522, 4530 or 4588).</li>
+            <li>The AI answers from Najma Home's knowledge base and can look up orders (try order 4521, 4522, 4530 or 4588).</li>
             <li>Damaged items, big refunds, angry customers or a request for a person go straight to a human in the Agent inbox.</li>
             <li>Every conversation is pre-scored for quality and counted in QA and reports.</li>
             <li>Agents see who they are talking to: location, local time and device, detected from the connection.</li>
@@ -427,7 +427,7 @@ footer{max-width:1240px;margin:0 auto;padding:8px 20px 28px;color:var(--muted);f
     </div>
   </section>
 </main>
-<footer class="hidden" id="appFoot">Laila &amp; Co. demo at laila.ai. Nakhla Home is a fictional store, and all orders and customers here are made up.</footer>
+<footer class="hidden" id="appFoot">Laila &amp; Co. demo at laila.ai. Najma Home is a fictional store, and all orders and customers here are made up.</footer>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -451,7 +451,7 @@ const ORDERS = {
   "4530": { order_number:"4530", items:"Oak dining table + 6 chairs", city:"Dammam", status:"Processing in warehouse, not shipped yet", ordered:dayOffset(-1), expected_delivery:dayOffset(8), payment:"Visa", total_sar:6900 },
   "4588": { order_number:"4588", items:"Bedside lamp, brass", city:"Jeddah", status:"Out for delivery today", ordered:dayOffset(-3), expected_delivery:dayOffset(0), payment:"Apple Pay", total_sar:390 }
 };
-const DEFAULT_KB = `Nakhla Home is an online home furnishings store in Saudi Arabia.
+const DEFAULT_KB = `Najma Home is an online home furnishings store in Saudi Arabia.
 
 DELIVERY
 - Riyadh, Jeddah and Dammam: 2 to 4 business days. Other cities: 5 to 7 business days.
@@ -501,8 +501,9 @@ const INTENT_LABEL = {
 };
 
 /* ---------- State ---------- */
-function defaultSetup(){ return { brand:"Nakhla Home", tone:"warm and professional", kb:DEFAULT_KB, rules:JSON.parse(JSON.stringify(DEFAULT_RULES)), useLive:true }; }
+function defaultSetup(){ return { brand:"Najma Home", tone:"warm and professional", kb:DEFAULT_KB, rules:JSON.parse(JSON.stringify(DEFAULT_RULES)), useLive:true }; }
 let state = loadState() || { convs:[], currentId:null, setup:defaultSetup(), nameIdx:0, selInbox:null };
+if (state.setup && state.setup.brand === "Nakhla Home"){ state.setup.brand = "Najma Home"; state.setup.kb = (state.setup.kb || "").replace(/Nakhla Home/g, "Najma Home"); }
 function loadState(){ try { const raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
 function save(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e){} }
 
@@ -662,7 +663,7 @@ function offlineRespond(c, text){
     reply = ar ? "تقدر ترجع المنتج خلال 14 يوم من التوصيل بشرط يكون غير مستخدم وبتغليفه الأصلي. المبلغ يرجع لنفس طريقة الدفع خلال 5 إلى 7 أيام عمل بعد الاستلام. للأثاث فيه رسوم استلام 99 ريال إلا إذا كان فيه عيب." : "You can return items within 14 days of delivery, unused and in the original packaging. Refunds go back to your original payment method within 5 to 7 business days after pickup. Furniture pickup costs SAR 99 unless the item is damaged or defective.";
   } else if (has("hi","hello","hey","salam","مرحبا","السلام","هلا","اهلا","أهلا")){
     intent = "other"; conf = 0.8;
-    reply = ar ? "هلا والله! أنا مساعد نخلة هوم. كيف أقدر أساعدك اليوم؟" : "Hi there! I'm Nakhla Home's assistant. How can I help you today?";
+    reply = ar ? "هلا والله! أنا مساعد نجمة هوم. كيف أقدر أساعدك اليوم؟" : "Hi there! I'm Najma Home's assistant. How can I help you today?";
   } else {
     intent = "other"; conf = 0.35;
     if (rules.includes("r5")){ escalate = true; reason = "Not covered by the knowledge base"; reply = ar ? "خليني أحوّل سؤالك لأحد أعضاء الفريق عشان يعطيك جواب دقيق. بيرد عليك هنا قريب." : "Let me pass this to a team member so you get an accurate answer. They'll reply here shortly."; }
@@ -671,7 +672,7 @@ function offlineRespond(c, text){
   const lang = ar ? "Arabic" : "English";
   const dialect = ar ? (/(ابي|أبي|وين|الحين|عطني|ثالث مرة|زين)/.test(text) ? "Gulf" : /(عايز|ازاي|فين|دلوقتي)/.test(text) ? "Egyptian" : "MSA") : "n/a";
   const summary = escalate ? `${c.customer} (${lang}${dialect !== "n/a" ? ", " + dialect : ""}) ${INTENT_LABEL[intent].toLowerCase()}. ${order ? "Order " + order.order_number + ": " + order.items + ", " + order.status + ", SAR " + order.total_sar + "." : "No order number given."} Reason for handover: ${reason}.` : "";
-  const suggested = escalate ? (ar ? `أهلًا ${c.customer}، معك سارة من فريق نخلة هوم. شفت رسالتك وأنا متابعة معك الحين.` + (dmg ? " ممكن ترسل صور للقطعة عشان نرتب الاستبدال أو الاسترجاع بدون أي رسوم؟" : "") : `Hi ${c.customer}, this is Sara from the Nakhla Home team. I've read your messages and I'm on it now.` + (dmg ? " Could you send a couple of photos so we can arrange a free replacement or refund?" : "")) : "";
+  const suggested = escalate ? (ar ? `أهلًا ${c.customer}، معك سارة من فريق نجمة هوم. شفت رسالتك وأنا متابعة معك الحين.` + (dmg ? " ممكن ترسل صور للقطعة عشان نرتب الاستبدال أو الاسترجاع بدون أي رسوم؟" : "") : `Hi ${c.customer}, this is Sara from the Najma Home team. I've read your messages and I'm on it now.` + (dmg ? " Could you send a couple of photos so we can arrange a free replacement or refund?" : "")) : "";
   const qa = { accuracy: conf >= 0.8 ? 5 : 4, tone: 5, policy: 5, language: 5 };
   return { reply, language:lang, dialect, intent, confidence:conf, escalate, escalation_reason:reason, summary_for_agent:summary, suggested_agent_reply:suggested, qa, tools, engine:"offline" };
 }
@@ -713,7 +714,7 @@ Respond with ONLY one JSON object, no other text, with exactly these keys:
     cache:false,
     tools:[{
       name:"lookup_order",
-      description:"Look up a Nakhla Home order by its 4-digit order number. Returns status, items, city, dates, payment and total, or found:false.",
+      description:"Look up a Najma Home order by its 4-digit order number. Returns status, items, city, dates, payment and total, or found:false.",
       inputSchema:{ type:"object", properties:{ order_number:{ type:"string", description:"The 4-digit order number" } }, required:["order_number"] },
       execute: async (input) => {
         const n = String((input && input.order_number) || "").replace(/\D/g, "").slice(0, 4);
@@ -981,7 +982,7 @@ const DEFAULT_CARD = [
 ];
 const SAMPLE_CALLS = [
   { id:"call-1", sample:true, channel:"Phone call", agent:"Omar (Laila & Co.)", customer:"Abdulrahman", duration:"4:12", minsAgo:95, transcript:[
-    { from:"agent", text:"هلا والله، معك عمر من نخلة هوم، كيف أقدر أخدمك؟" },
+    { from:"agent", text:"هلا والله، معك عمر من نجمة هوم، كيف أقدر أخدمك؟" },
     { from:"customer", text:"السلام عليكم، طلبت طاولة طعام رقم الطلب 4530 وأبي ألغيه، تأخر كثير." },
     { from:"agent", text:"وعليكم السلام. لحظة أشيك لك... الطلب لسه في المستودع وما انشحن، فتقدر تلغيه مجانًا." },
     { from:"customer", text:"تمام، ألغوه لو سمحت. ومتى ترجع فلوسي؟" },
@@ -990,7 +991,7 @@ const SAMPLE_CALLS = [
     { from:"agent", text:"العفو." }
   ]},
   { id:"call-2", sample:true, channel:"Phone call", agent:"Sara (Laila & Co.)", customer:"Emily", duration:"3:05", minsAgo:70, transcript:[
-    { from:"agent", text:"Hi, you're through to Nakhla Home, this is Sara. How can I help today?" },
+    { from:"agent", text:"Hi, you're through to Najma Home, this is Sara. How can I help today?" },
     { from:"customer", text:"Hi Sara, I want to buy the oak dining set but I'd rather pay in installments. Is that possible?" },
     { from:"agent", text:"Absolutely. You can split the payment with Tabby or Tamara at checkout, and there's no extra cost from our side. Delivery for large furniture is 7 to 10 business days with free assembly." },
     { from:"customer", text:"Perfect, and if I don't like it?" },
@@ -1336,7 +1337,7 @@ function boot(){
 
   $("#sampleToggle").addEventListener("change", renderReports);
 
-  $("#brandInput").addEventListener("input", e => { state.setup.brand = e.target.value || "Nakhla Home"; save(); renderChat(); });
+  $("#brandInput").addEventListener("input", e => { state.setup.brand = e.target.value || "Najma Home"; save(); renderChat(); });
   $("#toneSelect").addEventListener("change", e => { state.setup.tone = e.target.value; save(); });
   $("#kbInput").addEventListener("input", e => { state.setup.kb = e.target.value; save(); });
   $("#liveToggle").addEventListener("change", e => { state.setup.useLive = e.target.checked; save(); renderMode(); });
